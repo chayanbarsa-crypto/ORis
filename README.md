@@ -76,6 +76,27 @@ psql -v ON_ERROR_STOP=1 -d oris -f drizzle/pruebas/invariantes.sql
 
 Falta únicamente la `DATABASE_URL` de un Postgres gestionado. Ver `.env.example`.
 
+### Sobre la fase 3
+
+`packages/core/oris_core/extractos.py` extrae los movimientos de un extracto
+bancario con JSON Schema estricto y PDF nativo adjunto, y **valida el resultado
+antes de darlo por bueno**:
+
+```bash
+cd packages/core
+export ANTHROPIC_API_KEY=sk-ant-...
+.venv/bin/python extraer.py mi-extracto.pdf          # resumen legible
+.venv/bin/python extraer.py mi-extracto.pdf --json   # transcripción completa
+```
+
+La invariante es `saldo inicial + Σ movimientos = saldo final`. Si no cuadra, la
+extracción se declara incompleta y el CLI sale con código 1 — mejor no guardar
+nada que guardar movimientos a medias.
+
+> ⚠️ El fixture de pruebas es un extracto **sintético**: verifica la validación,
+> no la extracción. Cada banco maqueta a su manera y este documento tiene una
+> sola maquetación. Hace falta un extracto real como segundo fixture.
+
 ## Arranque del front
 
 ```bash

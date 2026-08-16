@@ -1,0 +1,67 @@
+{
+  "banco": "Banco de Ejemplo",
+  "iban": "ES9121000418450200051332",
+  "periodo_inicio": "2026-01-01",
+  "periodo_fin": "2026-01-31",
+  "saldo_inicial": "1250.00",
+  "saldo_final": "2737.14",
+  "movimientos": [
+    {
+      "fecha": "2026-01-03",
+      "fecha_valor": null,
+      "concepto": "NOMINA EMPRESA EJEMPLO SL",
+      "importe": "2100.00",
+      "saldo": "3350.00"
+    },
+    {
+      "fecha": "2026-01-05",
+      "fecha_valor": null,
+      "concepto": "RECIBO LUZ ENERO",
+      "importe": "-78.45",
+      "saldo": "3271.55"
+    },
+    {
+      "fecha": "2026-01-07",
+      "fecha_valor": null,
+      "concepto": "COMPRA SUPERMERCADO",
+      "importe": "-42.10",
+      "saldo": "3229.45"
+    },
+    {
+      "fecha": "2026-01-09",
+      "fecha_valor": null,
+      "concepto": "TRANSFERENCIA A AHORRO",
+      "importe": "-500.00",
+      "saldo": "2729.45"
+    },
+    {
+      "fecha": "2026-01-14",
+      "fecha_valor": null,
+      "concepto": "CAFE",
+      "importe": "-0.10",
+      "saldo": "2729.35"
+    },
+    {
+      "fecha": "2026-01-14",
+      "fecha_valor": null,
+      "concepto": "PAN",
+      "importe": "-0.20",
+      "saldo": "2729.15"
+    },
+    {
+      "fecha": "2026-01-20",
+      "fecha_valor": null,
+      "concepto": "DEVOLUCION COMPRA ONLINE",
+      "importe": "19.99",
+      "saldo": "2749.14"
+    },
+    {
+      "fecha": "2026-01-28",
+      "fecha_valor": null,
+      "concepto": "CUOTA MANTENIMIENTO",
+      "importe": "-12.00",
+      "saldo": "2737.14"
+    }
+  ],
+  "paginas_ilegibles": []
+}

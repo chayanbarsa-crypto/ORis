@@ -20,6 +20,14 @@ from .dominio import (
 )
 from .pdf import es_pdf, extraer_campos, leer_pdf
 from .reglas import auditar_por_reglas, calcular_cumplimiento
+from .extractos import (
+    ESQUEMA_MOVIMIENTOS,
+    Movimiento,
+    ResultadoExtraccion,
+    extraer_movimientos,
+    parsear_respuesta,
+    validar,
+)
 from .informes import (
     construir_informe_markdown,
     construir_pdf_corregido,
@@ -32,6 +40,8 @@ __all__ = [
     "REGLAS_POR_NOMBRE", "SEVERIDADES", "Hallazgo", "Regla", "ResultadoAuditoria",
     "es_pdf", "extraer_campos", "leer_pdf",
     "auditar_por_reglas", "calcular_cumplimiento",
+    "ESQUEMA_MOVIMIENTOS", "Movimiento", "ResultadoExtraccion",
+    "extraer_movimientos", "parsear_respuesta", "validar",
     "construir_informe_markdown", "construir_pdf_corregido",
     "construir_pdf_informe", "nombre_base",
 ]
