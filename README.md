@@ -111,6 +111,24 @@ desvío del cuadre es el doble del importe, no el importe.
 > Los extractos reales **no se versionan**: llevan nombre, domicilio, IBAN e
 > historial completo, y el historial de git es permanente.
 
+### Sobre la fase 4
+
+`apps/web/lib/db/ingesta.ts` lleva la salida de `extraer.py --json` a las tablas.
+Tres invariantes: **o entra todo o no entra nada** (una transacción), **lo que no
+cuadra no se guarda**, y **un PDF una vez** (deduplicación por SHA-256). Tras
+insertar, relee lo escrito y recalcula el cuadre en Postgres con `numeric`: si la
+conversión perdiera un céntimo, salta dentro de la transacción.
+
+```bash
+cd apps/web
+createdb oris && psql -d oris -f drizzle/0000_modelo_inicial.sql
+DATABASE_URL=postgresql://... npx tsx drizzle/pruebas/ingesta.test.ts
+```
+
+15 comprobaciones contra Postgres real. Verificado además con un extracto real de
+7 páginas y 92 movimientos: guardado en 32 ms, cuadre intacto, cero rupturas en
+la cadena de saldos.
+
 ## Arranque del front
 
 ```bash
