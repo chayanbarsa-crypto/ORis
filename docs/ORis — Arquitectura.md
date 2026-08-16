@@ -82,16 +82,24 @@ Los dos PDFs de ejemplo lo demuestran, y quedan como test permanente en
 
 ## Lo que falta decidir
 
-### Persistencia — la decisión abierta más grande
-Hace falta base de datos. Candidatos, por orden de encaje:
+### Persistencia — resuelta (fase 2)
+**Postgres con Drizzle.** El esquema vive en `apps/web/lib/db/schema.ts` y la
+migración en `apps/web/drizzle/`. Sirve igual Neon que Supabase: sólo cambia la
+`DATABASE_URL`.
 
-- **Postgres gestionado (Neon o Supabase)** + Prisma o Drizzle desde Next.js.
-  Plan gratuito suficiente, sin servidor que mantener, y Supabase trae
-  autenticación de verdad — que es justo lo que le falta al desbloqueo por
-  constelación.
+`Extracto` → `Movimiento` → `Categoría`, más `Hallazgo` (espejo de
+`oris_core.dominio.Hallazgo`, para que la auditoría quede guardada junto a los
+datos que audita) y `ReglaCategorizacion`.
 
-Modelo mínimo: `Extracto` (fichero, banco, periodo, saldos) → `Movimiento`
-(fecha, concepto, importe, saldo) → `Categoría` (con reglas de auto-asignación).
+Las decisiones y sus porqués están en
+[[2026-08-16 — Sesión 2, persistencia]]. Resumen: el dinero es `numeric(14,2)` y
+nunca un `number`; los extractos se deduplican por hash; la categorización
+guarda su procedencia y lo manual gana siempre.
+
+**Lo único que falta es la cuenta.** Recomendación: **Supabase**, porque además
+del Postgres trae autenticación de servidor — justo lo que le falta al
+desbloqueo por constelación, que no es seguridad. Con Neon habría que añadir
+auth aparte.
 
 ### Dónde corre el motor Python
 Tres opciones, con un aviso importante:
