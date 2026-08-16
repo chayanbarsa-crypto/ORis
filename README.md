@@ -129,6 +129,22 @@ DATABASE_URL=postgresql://... npx tsx drizzle/pruebas/ingesta.test.ts
 7 páginas y 92 movimientos: guardado en 32 ms, cuadre intacto, cero rupturas en
 la cadena de saldos.
 
+### Sobre la fase 5
+
+`packages/core/oris_core/categorias.py` categoriza por reglas **antes** de tocar
+el modelo. No es sólo ahorro: una regla es determinista y auditable —dice qué
+patrón casó—, mientras que una categoría del modelo hay que revisarla.
+
+Las reglas casan **patrones, no comercios exactos**: `FRUTERIA|CASQUERIA|
+PANADERIA|SUPERMERCAD\w*` cubre el comercio de barrio que nunca estará en un
+catálogo. Y el perfil del titular (nombre e IBAN) marca los **traspasos entre
+cuentas propias**, que no son ingreso ni gasto — la equivocación que más
+descuadra un presupuesto.
+
+Sobre un extracto real de 92 movimientos: **54 % por reglas**, 42 al modelo.
+
+> Invariante: `origen = 'manual'` no lo sobrescribe ni una regla ni el modelo.
+
 ## Arranque del front
 
 ```bash

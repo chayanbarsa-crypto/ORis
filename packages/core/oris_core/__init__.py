@@ -7,6 +7,15 @@ llamada a `st.` en las 1.205 líneas de lógica. La extracción es un corte, no
 una reescritura, y los dos PDFs de ejemplo lo verifican.
 """
 
+from .categorias import (
+    REGLAS_BASE,
+    Asignacion,
+    Perfil,
+    ResultadoCategorizacion,
+    categorizar,
+    normalizar_concepto,
+    reglas_para,
+)
 from .dominio import (
     CATALOGO_REGLAS,
     COLOR_SEVERIDAD,
@@ -42,6 +51,8 @@ __all__ = [
     "auditar_por_reglas", "calcular_cumplimiento",
     "ESQUEMA_MOVIMIENTOS", "Movimiento", "ResultadoExtraccion",
     "extraer_movimientos", "parsear_respuesta", "validar",
+    "REGLAS_BASE", "Asignacion", "Perfil", "ResultadoCategorizacion",
+    "categorizar", "normalizar_concepto", "reglas_para",
     "construir_informe_markdown", "construir_pdf_corregido",
     "construir_pdf_informe", "nombre_base",
 ]
