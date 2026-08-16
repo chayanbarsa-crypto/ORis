@@ -232,3 +232,75 @@ def test_iban_mod97():
     assert not _iban_valido("ES9121000418450200051333")   # último dígito cambiado
     assert not _iban_valido("ES912100041845020005133")    # 23 caracteres
     assert not _iban_valido("")
+
+
+# ---------------------------------------------------------------------------
+# Maquetación de dos columnas — el fallo que un extracto real destapó
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def dos_columnas() -> dict:
+    """Transcripción correcta de un extracto con columnas entrada/salida."""
+    return json.loads(
+        (FIXTURES / "extracto_dos_columnas.json").read_text(encoding="utf-8")
+    )
+
+
+def test_dos_columnas_transcrito_bien_cuadra(dos_columnas):
+    res = _validar(dos_columnas)
+    assert res.cuadra, [h.descripcion for h in res.hallazgos if h.estado == "No cumple"]
+    assert len(res.movimientos) == 20
+
+
+def test_una_salida_leida_como_entrada_rompe_el_cuadre(dos_columnas):
+    """El error específico de las dos columnas: la cifra va sin signo en el PDF.
+
+    Si el modelo se fija en el número y no en la columna, un cargo de 400,00 €
+    entra como abono. El desvío es el doble del importe — 800,00 €, no 400,00 —
+    porque no es que falte: es que está con el signo cambiado.
+    """
+    roto = copy.deepcopy(dos_columnas)
+    salida = next(m for m in roto["movimientos"] if m["importe"] == "-400.00")
+    salida["importe"] = "400.00"
+
+    res = _validar(roto)
+
+    assert not res.cuadra
+    cuadre = next(h for h in res.hallazgos if h.regla == "Cuadre de saldos")
+    assert cuadre.estado == "No cumple"
+    assert "800,00" in cuadre.descripcion, cuadre.descripcion
+
+
+def test_el_saldo_corrido_delata_el_signo_cambiado(dos_columnas):
+    """Cuando el banco imprime saldo corrido, la contradicción es local.
+
+    El saldo del propio apunte no cambia al invertir el signo del importe, así
+    que la continuidad señala exactamente esa fila. Es la comprobación que hace
+    útil la columna de balance que traen casi todos los extractos.
+    """
+    roto = copy.deepcopy(dos_columnas)
+    for m in roto["movimientos"]:
+        if m["concepto"] == "FARMACIA":
+            m["importe"] = "18.75"  # era -18.75
+
+    res = _validar(roto)
+
+    salto = next(h for h in res.hallazgos if h.regla == "Continuidad del saldo")
+    assert salto.estado == "No cumple"
+    assert "FARMACIA" in salto.evidencia, salto.evidencia
+
+
+def test_el_prompt_explica_las_dos_columnas():
+    """Sin esta instrucción el modelo transcribe los cargos en positivo."""
+    from oris_core.extractos import PROMPT_SISTEMA
+
+    assert "dos columnas" in PROMPT_SISTEMA
+    assert "salida" in PROMPT_SISTEMA
+    # Y debe decirle que use el saldo corrido para comprobarse a sí mismo.
+    assert "saldo" in PROMPT_SISTEMA
+
+
+def test_el_esquema_avisa_del_signo_por_columna():
+    item = ESQUEMA_MOVIMIENTOS["properties"]["movimientos"]["items"]
+    assert "columna de salida" in item["properties"]["importe"]["description"]

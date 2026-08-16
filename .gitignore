@@ -20,3 +20,12 @@ __pycache__/
 .DS_Store
 desktop.ini
 Thumbs.db
+
+# Extractos reales — nunca al repositorio.
+# Llevan nombre, domicilio, IBAN e historial completo de movimientos, y el
+# historial de git es permanente: lo que entra no sale sin reescribirlo.
+# Los fixtures versionados son sintéticos, con maquetación real.
+*extracto*.pdf
+*Extracto*.pdf
+!packages/core/tests/fixtures/extracto_ejemplo.pdf
+!packages/core/tests/fixtures/extracto_dos_columnas.pdf

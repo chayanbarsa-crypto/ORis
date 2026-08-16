@@ -1,0 +1,151 @@
+{
+  "banco": "Banco Sintético, Sucursal en España",
+  "iban": "ES9121000418450200051332",
+  "periodo_inicio": "2026-05-01",
+  "periodo_fin": "2026-08-13",
+  "saldo_inicial": "4.02",
+  "saldo_final": "16.69",
+  "movimientos": [
+    {
+      "fecha": "2026-05-01",
+      "fecha_valor": null,
+      "concepto": "Interest payment",
+      "importe": "0.07",
+      "saldo": "4.09"
+    },
+    {
+      "fecha": "2026-05-09",
+      "fecha_valor": null,
+      "concepto": "Ingreso desde cuenta propia",
+      "importe": "300.00",
+      "saldo": "304.09"
+    },
+    {
+      "fecha": "2026-05-10",
+      "fecha_valor": null,
+      "concepto": "COMERCIO EJEMPLO",
+      "importe": "-15.00",
+      "saldo": "289.09"
+    },
+    {
+      "fecha": "2026-05-10",
+      "fecha_valor": null,
+      "concepto": "COMERCIO EJEMPLO",
+      "importe": "-15.00",
+      "saldo": "274.09"
+    },
+    {
+      "fecha": "2026-05-10",
+      "fecha_valor": null,
+      "concepto": "TIENDA UNO",
+      "importe": "-3.83",
+      "saldo": "270.26"
+    },
+    {
+      "fecha": "2026-05-11",
+      "fecha_valor": null,
+      "concepto": "SUPERMERCADO",
+      "importe": "-3.65",
+      "saldo": "266.61"
+    },
+    {
+      "fecha": "2026-05-11",
+      "fecha_valor": null,
+      "concepto": "SUPERMERCADO",
+      "importe": "-2.25",
+      "saldo": "264.36"
+    },
+    {
+      "fecha": "2026-05-13",
+      "fecha_valor": null,
+      "concepto": "BAZAR",
+      "importe": "-8.29",
+      "saldo": "256.07"
+    },
+    {
+      "fecha": "2026-05-14",
+      "fecha_valor": null,
+      "concepto": "FRUTERIA",
+      "importe": "-7.44",
+      "saldo": "248.63"
+    },
+    {
+      "fecha": "2026-06-02",
+      "fecha_valor": null,
+      "concepto": "Ingreso desde cuenta propia",
+      "importe": "150.00",
+      "saldo": "398.63"
+    },
+    {
+      "fecha": "2026-06-05",
+      "fecha_valor": null,
+      "concepto": "CAFE",
+      "importe": "-0.10",
+      "saldo": "398.53"
+    },
+    {
+      "fecha": "2026-06-05",
+      "fecha_valor": null,
+      "concepto": "PAN",
+      "importe": "-0.20",
+      "saldo": "398.33"
+    },
+    {
+      "fecha": "2026-06-18",
+      "fecha_valor": null,
+      "concepto": "LIBRERIA",
+      "importe": "-24.90",
+      "saldo": "373.43"
+    },
+    {
+      "fecha": "2026-07-01",
+      "fecha_valor": null,
+      "concepto": "Interest payment",
+      "importe": "0.05",
+      "saldo": "373.48"
+    },
+    {
+      "fecha": "2026-07-07",
+      "fecha_valor": null,
+      "concepto": "Pago recibido",
+      "importe": "75.50",
+      "saldo": "448.98"
+    },
+    {
+      "fecha": "2026-07-12",
+      "fecha_valor": null,
+      "concepto": "TRANSPORTE",
+      "importe": "-11.20",
+      "saldo": "437.78"
+    },
+    {
+      "fecha": "2026-07-29",
+      "fecha_valor": null,
+      "concepto": "FARMACIA",
+      "importe": "-18.75",
+      "saldo": "419.03"
+    },
+    {
+      "fecha": "2026-08-01",
+      "fecha_valor": null,
+      "concepto": "Interest payment",
+      "importe": "0.06",
+      "saldo": "419.09"
+    },
+    {
+      "fecha": "2026-08-04",
+      "fecha_valor": null,
+      "concepto": "Envío a ahorro",
+      "importe": "-400.00",
+      "saldo": "19.09"
+    },
+    {
+      "fecha": "2026-08-13",
+      "fecha_valor": null,
+      "concepto": "PANADERIA",
+      "importe": "-2.40",
+      "saldo": "16.69"
+    }
+  ],
+  "paginas_ilegibles": []
+}

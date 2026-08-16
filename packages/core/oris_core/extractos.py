@@ -66,7 +66,11 @@ _IMPORTE = {
     # intercambio, no de presentación. El formateo a «1.234,56 €» es de la
     # interfaz.
     "pattern": r"^-?\d+\.\d{2}$",
-    "description": "Importe con punto decimal y dos decimales. Negativo = cargo.",
+    "description": (
+        "Importe con punto decimal y dos decimales. Negativo = cargo. "
+        "Si el extracto usa columnas separadas de entrada y salida, lo que "
+        "está en la columna de salida va con signo negativo."
+    ),
 }
 
 ESQUEMA_MOVIMIENTOS: dict[str, Any] = {
@@ -171,6 +175,19 @@ PROMPT_SISTEMA = (
     "No agrupes, no resumas, no omitas los de importe cero.\n"
     "- Cargos en negativo, abonos en positivo, siempre con punto decimal y dos "
     "decimales: -42.10, no «42,10 €» ni «-42,1».\n"
+    "- **Muchos bancos no usan una columna de importe con signo, sino dos "
+    "columnas separadas** («entrada» / «salida», «haber» / «debe», «ingresos» / "
+    "«pagos»). En ese caso el signo lo determina la COLUMNA en la que está la "
+    "cifra, no el número: lo que aparece bajo salida, debe o pagos es negativo, "
+    "aunque esté impreso sin signo. Fíjate en qué columna ocupa cada cifra antes "
+    "de transcribirla.\n"
+    "- Cuando el extracto trae una columna de saldo corrido, úsala para "
+    "comprobarte a ti mismo: el saldo de cada apunte menos el del anterior tiene "
+    "que dar exactamente el importe que has asignado. Si no da, has confundido "
+    "las columnas o te has saltado una fila.\n"
+    "- Las fechas van siempre en AAAA-MM-DD, traduciendo el formato del banco: "
+    "«01 may 2026» es 2026-05-01. Una fecha partida en dos líneas sigue siendo "
+    "una sola fecha.\n"
     "- Si el extracto declara saldo inicial o final, cópialos. Si no los declara, "
     "devuelve null. No los deduzcas a partir de los movimientos: el cuadre se "
     "comprueba después, y un saldo deducido lo haría cuadrar siempre.\n"

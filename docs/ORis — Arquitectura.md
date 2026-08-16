@@ -125,6 +125,24 @@ El desbloqueo por constelación **no es seguridad** — lo dice el propio
 de servidor. La constelación puede quedarse como capa estética *encima* del
 login real, que es donde aporta.
 
+### Maquetación de los extractos — resuelto en la sesión 4
+No todos los bancos usan una columna de importe con signo. Trade Republic usa
+**dos columnas** («entrada de dinero» / «salida de dinero») con las cifras
+siempre en positivo: el signo lo determina la columna. El prompt y el esquema
+lo contemplan explícitamente desde
+[[2026-08-16 — Sesión 4, el extracto real]], y hay un fixture con esa
+maquetación.
+
+Corolario que conviene no olvidar: sobre **texto plano** dos columnas se funden
+en una sola línea y el apunte queda ambiguo. Adjuntar el PDF nativo no es una
+optimización, es lo que hace posible distinguir un importe de un saldo.
+
+### Datos reales en el repositorio — no
+Un extracto real lleva nombre, domicilio, IBAN y el historial completo de
+movimientos. El historial de git es permanente: lo que entra no sale sin
+reescribirlo. Los fixtures del repositorio son **sintéticos con maquetación
+real** — se captura la forma, que es lo que prueba el extractor, no los datos.
+
 ### Responsive y táctil
 La constelación se traza arrastrando. En escritorio son eventos de ratón; en
 móvil y tablet hacen falta *pointer events* y evitar el desplazamiento de la

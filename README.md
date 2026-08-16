@@ -93,9 +93,23 @@ La invariante es `saldo inicial + Σ movimientos = saldo final`. Si no cuadra, l
 extracción se declara incompleta y el CLI sale con código 1 — mejor no guardar
 nada que guardar movimientos a medias.
 
-> ⚠️ El fixture de pruebas es un extracto **sintético**: verifica la validación,
-> no la extracción. Cada banco maqueta a su manera y este documento tiene una
-> sola maquetación. Hace falta un extracto real como segundo fixture.
+Hay dos fixtures, ambos sintéticos pero con maquetaciones distintas:
+
+| Fixture | Maquetación |
+|---|---|
+| `extracto_ejemplo.pdf` | Una columna de importe con signo |
+| `extracto_dos_columnas.pdf` | Dos columnas entrada/salida sin signo, fechas partidas, saldo corrido |
+
+El segundo reproduce la maquetación de un extracto real. **En dos columnas el
+signo lo determina la columna, no el número** — y si el modelo se equivoca, el
+desvío del cuadre es el doble del importe, no el importe.
+
+> ⚠️ Los fixtures verifican la **validación**, no la extracción: sé que el
+> validador caza el error de columnas, no si el modelo lo comete. Falta una
+> pasada con `ANTHROPIC_API_KEY` sobre un extracto real.
+>
+> Los extractos reales **no se versionan**: llevan nombre, domicilio, IBAN e
+> historial completo, y el historial de git es permanente.
 
 ## Arranque del front
 
