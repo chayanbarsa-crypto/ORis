@@ -96,6 +96,8 @@ El patrón de desbloqueo es el pez septentrional de Piscis:
 
 ## Documentación
 
+Punto de entrada: [`docs/ORis — Resumen del proyecto.md`](docs/).
+
 Las decisiones de diseño viven en `docs/`, escritas como bóveda de Obsidian
 (frontmatter YAML y enlaces `[[wiki]]`). Ver
 [`docs/ORis — Cómo sincronizar con Obsidian en iPad.md`](docs/) para el montaje
