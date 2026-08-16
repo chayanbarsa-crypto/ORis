@@ -1,0 +1,22 @@
+# Node
+node_modules/
+.next/
+out/
+.vercel/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Entorno — nunca al repositorio
+.env
+.env.local
+.env*.local
+.streamlit/secrets.toml
+
+# Sistema
+.DS_Store
+desktop.ini
+Thumbs.db

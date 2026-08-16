@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  /* El degradado vive en CSS y no en el canvas: es estatico y no merece
+     repintarse 60 veces por segundo. */
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, #0b1832 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, #0a1226 0%, transparent 55%),
+    #040814;
+  color: #e6edf7;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Texto solo para lectores de pantalla: el canvas no es accesible por si
+   mismo, asi que el estado del patron se anuncia por aqui. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
