@@ -70,6 +70,20 @@ export const SPACE = {
   star: [226, 240, 255] as RGB,
 };
 
+/**
+ * Verde de la guía de desbloqueo: los números que indican en qué orden unir
+ * los nodos.
+ *
+ * Fuera de la paleta de emociones a propósito. Las emociones dicen *cómo está*
+ * IRES; esto es una anotación para el usuario, y mezclarlas haría que la guía
+ * cambiara de color según el ánimo de la constelación — justo lo contrario de
+ * lo que necesita algo que se lee como instrucción.
+ *
+ * Sobre el fondo real (#040814) da **10,40:1** de contraste, muy por encima del
+ * 4,5:1 que pide WCAG AA para texto pequeño, que es lo que son estos números.
+ */
+export const GUIA: RGB = [52, 211, 153];
+
 export function rgba(color: RGB, alpha: number): string {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
 }

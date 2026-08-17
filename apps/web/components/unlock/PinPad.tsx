@@ -133,7 +133,7 @@ export function PinPad({ onUnlock }: PinPadProps) {
       </div>
 
       <p className="mt-5 text-center text-[0.66rem] leading-relaxed text-white/25">
-        {error ? 'PIN incorrecto' : 'Introduce tu PIN para despertar a IRES'}
+        {error ? 'PIN incorrecto' : 'Introduce tu PIN para despertar a ORis'}
       </p>
     </motion.div>
   );

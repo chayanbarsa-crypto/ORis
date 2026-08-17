@@ -15,8 +15,8 @@ import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useCanvas, type FrameInfo } from '@/hooks/useCanvas';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useIres } from '@/lib/ires/context';
-import { IRES_THEME, rgba, themeFor } from '@/lib/ires/theme';
-import { PISCES_EDGES, PISCES_NODES } from '@/lib/constellation/pisces';
+import { GUIA, IRES_THEME, rgba, themeFor } from '@/lib/ires/theme';
+import { PISCES_EDGES, PISCES_NODES, UNLOCK_SEQUENCE } from '@/lib/constellation/pisces';
 import {
   fitToCanvas,
   findNodeAt,
@@ -52,6 +52,15 @@ export interface PiscesConstellationProps {
   onFail?: () => void;
   /** Progreso del despertar, 0..1. Lo controla la pantalla de desbloqueo. */
   awakenProgress?: number;
+  /**
+   * Muestra la secuencia de desbloqueo numerada sobre los nodos.
+   *
+   * Es una ayuda, no un descuido: la cerradura de la constelación nunca fue
+   * seguridad —lo advierte `accessConfig.ts`— sino una forma de entrar que se
+   * lee como un despertar. Un patrón que no se recuerda deja fuera al dueño,
+   * que es el único fallo que aquí importa de verdad.
+   */
+  mostrarGuia?: boolean;
 }
 
 export function PiscesConstellation({
@@ -59,6 +68,7 @@ export function PiscesConstellation({
   onUnlock,
   onFail,
   awakenProgress = 0,
+  mostrarGuia = false,
 }: PiscesConstellationProps) {
   const { theme, profile } = useIres();
   const reduced = useReducedMotion();
@@ -86,6 +96,8 @@ export function PiscesConstellation({
   awakenRef.current = awakenProgress;
   const interactiveRef = useRef(interactive);
   interactiveRef.current = interactive;
+  const guiaRef = useRef(mostrarGuia);
+  guiaRef.current = mostrarGuia;
 
   // Lo unico que se refleja en React: sirve para el texto de ayuda.
   const [result, setResult] = useState<PatternResult>('incomplete');
@@ -254,6 +266,56 @@ export function PiscesConstellation({
       ctx.stroke();
     }
 
+    // --- guia de desbloqueo ---
+    // Los nodos de la secuencia, numerados y unidos por una linea discontinua.
+    // Se desvanece en cuanto el usuario empieza a trazar: ya no hace falta, y
+    // dejarla encima competiria visualmente con su propio trazo.
+    if (guiaRef.current) {
+      const desvanecer = path.length > 0 ? 0.18 : 1;
+      const puntos = UNLOCK_SEQUENCE
+        .map((id) => nodes.find((n) => n.id === id))
+        .filter((n): n is ProjectedNode => Boolean(n));
+
+      if (puntos.length > 0) {
+        // Linea discontinua: se distingue del trazo continuo del usuario sin
+        // depender del color, que es lo unico que veria alguien con daltonismo.
+        ctx.save();
+        ctx.setLineDash([unit * 0.012, unit * 0.014]);
+        ctx.lineWidth = Math.max(1, unit * 0.0026);
+        ctx.strokeStyle = rgba(GUIA, 0.4 * desvanecer);
+        ctx.beginPath();
+        ctx.moveTo(puntos[0].px, puntos[0].py);
+        for (let i = 1; i < puntos.length; i++) ctx.lineTo(puntos[i].px, puntos[i].py);
+        ctx.stroke();
+        ctx.restore();
+
+        // El numero de orden, en una pastilla junto a cada nodo.
+        const radio = Math.max(9, unit * 0.019);
+        ctx.save();
+        ctx.font = `600 ${Math.max(10, unit * 0.021)}px ui-sans-serif, system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        puntos.forEach((n, i) => {
+          // Desplazada arriba-derecha para no tapar el nodo ni su halo.
+          const cx = n.px + radio * 1.5;
+          const cy = n.py - radio * 1.5;
+
+          ctx.beginPath();
+          ctx.arc(cx, cy, radio, 0, Math.PI * 2);
+          ctx.fillStyle = rgba([4, 8, 20], 0.85 * desvanecer);
+          ctx.fill();
+          ctx.lineWidth = Math.max(1, unit * 0.0022);
+          ctx.strokeStyle = rgba(GUIA, 0.85 * desvanecer);
+          ctx.stroke();
+
+          ctx.fillStyle = rgba(GUIA, 0.95 * desvanecer);
+          ctx.fillText(String(i + 1), cx, cy + radio * 0.04);
+        });
+        ctx.restore();
+      }
+    }
+
     // --- trazo del usuario ---
     if (path.length > 0) {
       const pts = path
@@ -367,7 +429,7 @@ export function PiscesConstellation({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         role="application"
-        aria-label="Constelación de Piscis. Traza el patrón para despertar a IRES."
+        aria-label="Constelación de Piscis. Une los puntos numerados del 1 al 4 para despertar a ORis."
       />
       <ConstellationStatus result={result} length={pathLength} />
     </div>
@@ -378,7 +440,7 @@ export function PiscesConstellation({
 function ConstellationStatus({ result, length }: { result: PatternResult; length: number }) {
   const message =
     result === 'valid'
-      ? 'Patrón reconocido. Despertando a IRES.'
+      ? 'Patrón reconocido. Despertando a ORis.'
       : result === 'invalid'
         ? 'Patrón no reconocido.'
         : length > 0

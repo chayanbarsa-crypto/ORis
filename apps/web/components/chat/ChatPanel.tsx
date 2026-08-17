@@ -14,10 +14,10 @@ export function ChatPanel() {
   const { state } = useIres();
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col" aria-label="Conversación con IRES">
+    <section className="flex min-h-0 flex-1 flex-col" aria-label="Conversación con ORis">
       <div className="flex flex-1 items-center justify-center px-6 py-10">
         <p className="max-w-sm text-center text-sm leading-relaxed text-white/25">
-          IRES está despierta y en estado <span className="text-white/50">{state}</span>.
+          ORis está despierta y en estado <span className="text-white/50">{state}</span>.
           <br />
           La conversación llega en la Fase 2.
         </p>
@@ -28,9 +28,9 @@ export function ChatPanel() {
           <input
             type="text"
             disabled
-            placeholder="Escribe a IRES…"
+            placeholder="Escribe a ORis…"
             className="flex-1 bg-transparent text-sm text-white/70 placeholder:text-white/20 focus:outline-none disabled:cursor-not-allowed"
-            aria-label="Mensaje para IRES"
+            aria-label="Mensaje para ORis"
           />
           <button
             type="button"

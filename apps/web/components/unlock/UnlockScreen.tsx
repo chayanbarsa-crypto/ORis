@@ -92,7 +92,7 @@ export function UnlockScreen() {
               className="text-[clamp(2.2rem,7vw,4rem)] font-extralight tracking-[0.42em] text-white/90"
               style={{ textShadow: `0 0 28px ${rgba(theme.glow, 0.55)}` }}
             >
-              IRES
+              ORis
             </h1>
             <p className="text-[0.62rem] uppercase tracking-[0.34em] text-white/35 sm:text-xs">
               Inteligencia financiera
@@ -105,6 +105,7 @@ export function UnlockScreen() {
               onUnlock={handleUnlock}
               onFail={handleFail}
               awakenProgress={awaken}
+              mostrarGuia={locked && !showPin}
             />
           </div>
 
@@ -142,12 +143,14 @@ export function UnlockScreen() {
             </span>
             <span className="max-w-xs text-[0.68rem] leading-relaxed text-white/25">
               {showPin
-                ? 'Patrón bloqueado tras varios intentos'
-                : fails > 0
-                  ? `Patrón no reconocido · ${MAX_PATTERN_ATTEMPTS - fails} ${
-                      MAX_PATTERN_ATTEMPTS - fails === 1 ? 'intento restante' : 'intentos restantes'
-                    }`
-                  : 'Traza la constelación para despertar a IRES'}
+                ? 'Patrón bloqueado tras 3 intentos · introduce el PIN'
+                : fails >= MAX_PATTERN_ATTEMPTS
+                  ? 'Sin PIN configurado: define NEXT_PUBLIC_UNLOCK_PIN en .env.local'
+                  : fails > 0
+                    ? `Patrón no reconocido · ${MAX_PATTERN_ATTEMPTS - fails} ${
+                        MAX_PATTERN_ATTEMPTS - fails === 1 ? 'intento restante' : 'intentos restantes'
+                      }`
+                    : 'Une los puntos numerados para despertar a ORis'}
             </span>
           </motion.footer>
         </motion.div>

@@ -3,7 +3,7 @@ import './globals.css';
 import { IresProvider } from '@/lib/ires/context';
 
 export const metadata: Metadata = {
-  title: 'IRES',
+  title: 'ORis',
   description: 'Inteligencia financiera',
 };
 

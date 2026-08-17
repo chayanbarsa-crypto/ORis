@@ -179,9 +179,20 @@ npm run dev
 
 Requiere Node.js 18.18 o superior. Abre `http://localhost:3000`.
 
-El patrón de desbloqueo es el pez septentrional de Piscis:
-`Alrescha → Omicron → Eta → Tau → Phi`. Se cambia en
-`apps/web/lib/constellation/pisces.ts`.
+Los puntos que hay que unir aparecen **numerados en verde sobre la
+constelación**. La secuencia real está en `apps/web/lib/constellation/pisces.ts`
+(`UNLOCK_SEQUENCE`); la guía lee ese array, así que cambiar el patrón cambia los
+números solos.
+
+**Tras 3 patrones fallidos aparece el teclado del PIN.** El PIN no está en el
+código —quedaría en el historial de git para siempre— sino en `.env.local`:
+
+```bash
+echo 'NEXT_PUBLIC_UNLOCK_PIN=1692' > apps/web/.env.local
+```
+
+Sin esa variable no hay respaldo: al tercer intento se sigue con el patrón, y la
+pantalla lo dice en vez de ofrecer un teclado que nunca abriría.
 
 > ⚠️ El desbloqueo por constelación **no es seguridad** — el patrón acaba en el
 > bundle de JavaScript. Es una cerradura de conveniencia. En cuanto ORis maneje
