@@ -1,40 +1,60 @@
 'use client';
 
 /**
- * Navegacion financiera. Fase 1: solo la estructura.
+ * Navegación del panel.
  *
- * Las secciones se declaran como datos y no como JSX repetido, para que la
- * Fase 5 pueda anadir modulos sin tocar el render.
+ * Las secciones siguen declarándose como datos, como en la Fase 1 de IRES. Lo
+ * que cambia es que ahora algunas existen: `activa` marca cuáles se pueden
+ * pulsar y cuáles siguen siendo huecos.
+ *
+ * Un botón deshabilitado que **dice** que lo está es más honesto que uno que
+ * parece funcionar y no hace nada.
  */
 
-export interface FinanceSection {
+export interface SeccionPanel {
   id: string;
   label: string;
-  /** Se activa en la fase indicada. */
-  phase: number;
+  activa: boolean;
+  /** Se muestra al pasar por encima de las que aún no existen. */
+  nota?: string;
 }
 
-export const FINANCE_SECTIONS: readonly FinanceSection[] = [
-  { id: 'dashboard', label: 'Dashboard', phase: 2 },
-  { id: 'portfolio', label: 'Portfolio', phase: 5 },
-  { id: 'documents', label: 'Documents', phase: 5 },
-  { id: 'alerts', label: 'Alerts', phase: 4 },
+export const SECCIONES: readonly SeccionPanel[] = [
+  { id: 'panel', label: 'Panel', activa: true },
+  { id: 'movimientos', label: 'Movimientos', activa: true },
+  { id: 'extractos', label: 'Extractos', activa: false, nota: 'Subida de PDF — pendiente' },
+  { id: 'categorias', label: 'Categorías', activa: false, nota: 'Editor de reglas — pendiente' },
+  { id: 'copiloto', label: 'Copiloto', activa: false, nota: 'Necesita backend de IA' },
 ];
 
-export function FinanceSidebar() {
+export interface FinanceSidebarProps {
+  seccion: string;
+  onSeccion: (id: string) => void;
+}
+
+export function FinanceSidebar({ seccion, onSeccion }: FinanceSidebarProps) {
   return (
     <nav
-      className="shrink-0 border-b border-white/[0.07] px-5 py-4 md:w-56 md:border-b-0 md:border-r md:py-6"
-      aria-label="Secciones financieras"
+      className="shrink-0 border-b border-white/[0.07] px-5 py-4 md:w-52 md:border-b-0 md:border-r md:py-6"
+      aria-label="Secciones de ORis"
     >
       <p className="mb-3 text-[0.58rem] uppercase tracking-[0.26em] text-white/30">Finanzas</p>
-      <ul className="flex gap-2 md:flex-col md:gap-1">
-        {FINANCE_SECTIONS.map((s) => (
-          <li key={s.id}>
+      <ul className="flex gap-2 overflow-x-auto md:flex-col md:gap-1 md:overflow-visible">
+        {SECCIONES.map((s) => (
+          <li key={s.id} className="shrink-0">
             <button
               type="button"
-              disabled
-              className="w-full rounded-lg px-3 py-2 text-left text-sm text-white/35 transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed"
+              disabled={!s.activa}
+              onClick={() => s.activa && onSeccion(s.id)}
+              aria-current={seccion === s.id ? 'page' : undefined}
+              title={s.nota}
+              className={`w-full whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                seccion === s.id
+                  ? 'bg-white/[0.07] text-white/90'
+                  : s.activa
+                    ? 'text-white/60 hover:bg-white/[0.04] hover:text-white/85'
+                    : 'cursor-not-allowed text-white/25'
+              }`}
             >
               {s.label}
             </button>

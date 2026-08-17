@@ -1,21 +1,16 @@
-'use client';
+/**
+ * Página principal. Componente **de servidor**: aquí se leen los datos.
+ *
+ * La parte interactiva vive en `HomeClient` porque necesita los hooks de IRES.
+ * Separarlas permite que los movimientos se carguen en el servidor —sin un
+ * parpadeo de «cargando» ni una llamada extra desde el navegador— y que el
+ * cliente reciba sólo lo que tiene que pintar.
+ */
 
-import { StarField } from '@/components/background/StarField';
-import { UnlockScreen } from '@/components/unlock/UnlockScreen';
-import { AppShell } from '@/components/ui/AppShell';
-import { useIres } from '@/lib/ires/context';
+import { cargarMovimientos } from '@/lib/oris/cargar';
+import { HomeClient } from './HomeClient';
 
-export default function Home() {
-  const { state } = useIres();
-
-  return (
-    <main className="relative h-dvh w-screen overflow-hidden">
-      {/* El campo estelar nunca se desmonta: sobrevive al desbloqueo y sigue
-          reaccionando al estado de IRES en toda la aplicacion. */}
-      <StarField />
-
-      {state === 'idle' && <AppShell />}
-      <UnlockScreen />
-    </main>
-  );
+export default async function Home() {
+  const { movimientos, motivo } = await cargarMovimientos();
+  return <HomeClient movimientos={movimientos} motivoVacio={motivo ?? undefined} />;
 }

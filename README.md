@@ -145,6 +145,30 @@ Sobre un extracto real de 92 movimientos: **54 % por reglas**, 42 al modelo.
 
 > Invariante: `origen = 'manual'` no lo sobrescribe ni una regla ni el modelo.
 
+### Sobre la fase 6
+
+El panel vive en `apps/web/components/panel/`, y los cálculos —funciones puras,
+sin React— en `apps/web/lib/oris/`.
+
+```bash
+cd apps/web
+npx tsx lib/oris/pruebas/agregados.test.ts   # 30 comprobaciones
+npm run dev
+```
+
+Tres cosas que lo distinguen de un dashboard cualquiera:
+
+- **El dinero se suma en céntimos enteros**, nunca en euros con coma flotante.
+- **Los traspasos entre cuentas propias no son ingreso ni gasto**: se informan
+  aparte. En el extracto real eran 8 de los 15 ingresos.
+- **El panel confiesa lo que no sabe**: cuántos movimientos están sin revisar y
+  si cada categoría la puso una regla, el modelo o tú.
+
+El desglose usa **un solo tono** porque compara magnitudes de una misma medida;
+la identidad la lleva la etiqueta. La paleta de emociones de IRES no vale aquí
+—`processing` y `empathy` están a ΔE 6,3, indistinguibles— y eso no es un fallo
+suyo: esas emociones nunca coinciden en pantalla.
+
 ## Arranque del front
 
 ```bash

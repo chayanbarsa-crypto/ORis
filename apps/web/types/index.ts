@@ -10,4 +10,6 @@ export type { Point, Projection, ProjectedNode } from '@/lib/constellation/geome
 export type { PatternResult } from '@/lib/constellation/unlockPattern';
 export type { VoiceMode, VoiceCommand, SpeechAdapter } from '@/lib/voice/types';
 export type { ChatMessage, IresResponse, IresBackend, MessageRole } from '@/lib/ai/types';
-export type { FinanceSection } from '@/components/finance/FinanceSidebar';
+export type { SeccionPanel } from '@/components/finance/FinanceSidebar';
+export type { MovimientoVista, ResumenMes, LineaCategoria } from '@/lib/oris/agregados';
+export type { Centimos } from '@/lib/oris/dinero';
