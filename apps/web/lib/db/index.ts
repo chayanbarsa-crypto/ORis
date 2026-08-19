@@ -12,7 +12,13 @@ import postgres from 'postgres';
 
 import * as schema from './schema';
 
-const url = process.env.DATABASE_URL;
+/**
+ * `POSTGRES_URL` es lo que escribe la integración oficial de Supabase con
+ * Vercel, que configura las variables sola y evita tener que manejar la
+ * contraseña a mano. `DATABASE_URL` es el nombre estándar y el que usamos en
+ * local, así que gana si están las dos.
+ */
+const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
 export const hayBaseDeDatos = Boolean(url);
 
