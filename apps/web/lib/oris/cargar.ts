@@ -61,11 +61,46 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
       motivo: null,
     };
   } catch (e) {
-    return {
-      movimientos: [],
-      motivo:
-        'La base de datos está configurada pero la consulta falló: ' +
-        `${(e as Error).message}. ¿Se aplicó drizzle/0000_modelo_inicial.sql?`,
-    };
+    return { movimientos: [], motivo: explicar(e) };
   }
+}
+
+/**
+ * Traduce un fallo de Postgres a algo accionable.
+ *
+ * Drizzle envuelve el error y su mensaje es la consulta entera —que llena la
+ * pantalla y no dice nada—; la causa real, el código SQLSTATE con su texto,
+ * viaja en `cause`. Sin desenvolverlo, «no existe la tabla» y «la contraseña
+ * no vale» se leen igual en pantalla, y son problemas opuestos.
+ */
+function explicar(e: unknown): string {
+  const causa = (e as { cause?: unknown })?.cause;
+  const err = (causa ?? e) as { message?: string; code?: string };
+  const codigo = err.code ?? '';
+  const detalle = err.message ?? String(e);
+
+  const pistas: Record<string, string> = {
+    // undefined_table
+    '42P01':
+      'La conexión funciona, pero en esta base de datos no existe la tabla. ' +
+      'El SQL de drizzle/0000_modelo_inicial.sql se aplicó en otro proyecto de ' +
+      'Supabase, o no llegó a ejecutarse entero.',
+    // invalid_password
+    '28P01':
+      'La contraseña de la cadena de conexión no es correcta. Si lleva símbolos, ' +
+      'hay que codificarlos.',
+    // invalid_authorization_specification
+    '28000': 'El usuario de la cadena de conexión no vale para esta base de datos.',
+    // invalid_catalog_name
+    '3D000': 'La base de datos que nombra la cadena de conexión no existe.',
+    // insufficient_privilege
+    '42501': 'El usuario conecta pero no tiene permiso para leer la tabla.',
+  };
+
+  const pista = pistas[codigo];
+  return pista
+    ? `${pista} (Postgres ${codigo}: ${detalle})`
+    : `La base de datos está configurada pero la consulta falló${
+        codigo ? ` (${codigo})` : ''
+      }: ${detalle}`;
 }
