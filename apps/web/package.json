@@ -1,8 +1,8 @@
 {
-  "name": "ires",
+  "name": "oris",
   "version": "0.1.0",
   "private": true,
-  "description": "IRES — inteligencia financiera. Fase 1: desbloqueo por constelación.",
+  "description": "ORis — auditoría y categorización de extractos bancarios sobre la interfaz de IRES.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
