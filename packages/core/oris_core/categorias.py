@@ -33,6 +33,8 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Iterable, Literal
 
+from .contratos import reglas_base
+
 Origen = Literal["regla", "ia", "manual"]
 
 # ---------------------------------------------------------------------------
@@ -130,74 +132,15 @@ class Regla:
         return re.search(self.patron, texto) is not None
 
 
-# El catálogo de arranque. No pretende ser exhaustivo — pretende cubrir el
-# grueso para que el modelo sólo vea lo raro. Se amplía desde la interfaz,
-# porque los comercios de cada cual son los suyos.
-#
-# Las prioridades altas van primero a propósito: un traspaso entre cuentas
-# propias debe ganar a cualquier regla de ingreso, y una comisión sobre una
-# compra debe ganar a la regla del comercio.
-REGLAS_BASE: tuple[Regla, ...] = (
-    # --- 100: lo que NO es ingreso ni gasto -------------------------------
-    #     Debe evaluarse antes que nada. Ver decisión 3 de la cabecera.
-    Regla("Traspaso entre cuentas propias", r"\bTRASPASO\b", 100),
-    # --- 90: comisiones sobre otra operación ------------------------------
-    #     «PAYMONADE EXCHANGE RATE ECB RATE MARKUP» es la comisión de cambio
-    #     de una compra, no otra compra. Sin esta regla se contaría dos veces
-    #     el mismo comercio.
-    Regla("Comisiones", r"\b(MARKUP|COMISION|FEE|MANTENIMIENTO)\b", 90),
-    # --- 80: inversión ----------------------------------------------------
-    Regla("Inversión", r"\b(ISHARES|VANGUARD|UCITS|ETF|ACCIONES|MSCI)\b", 80),
-    Regla("Rendimientos", r"\b(DIVIDEND|CUPON)\b", 80, signo="abono"),
-    # --- 50: categorías de gasto por patrón, no por comercio --------------
-    Regla(
-        "Alimentación",
-        r"\b(AHORRAMAS|MERCADONA|CARREFOUR|LIDL|ALCAMPO|EROSKI|CONSUM|ALDI"
-        r"|SUPERMERCAD\w*|SUPERCOR|ALIMENTACION|FRUTERIA|CARNICERIA|CASQUERIA"
-        r"|PESCADERIA|PANADERIA|CHARCUTERIA|ULTRAMARINOS|HIPER)\b",
-        50,
-        signo="cargo",
-    ),
-    Regla(
-        "Restauración",
-        r"\b(BAR|CAFETERIA|CAFE|RESTAURANTE|TABERNA|PIZZ\w*|BURGER|KEBAB"
-        r"|UBER EATS|GLOVO|JUST EAT|DELIVEROO|ALITAS|ASADOR|CERVECERIA)\b",
-        50,
-        signo="cargo",
-    ),
-    Regla(
-        "Salud",
-        r"\b(FARMACIA|FCIA|PARAFARMACIA|CLINICA|DENTAL|OPTICA|HOSPITAL"
-        r"|LABORATORIO|FISIOTERAPIA)\b",
-        50,
-        signo="cargo",
-    ),
-    Regla(
-        "Transporte",
-        r"\b(RENFE|METRO|EMT|CERCANIAS|CABIFY|UBER|BOLT|TAXI|REPSOL|CEPSA"
-        r"|GALP|SHELL|PETRON\w*|GASOLINERA|PARKING|AUTOPISTA|BLABLACAR)\b",
-        50,
-        signo="cargo",
-    ),
-    Regla(
-        "Suministros",
-        r"\b(IBERDROLA|ENDESA|NATURGY|REPSOL LUZ|HOLALUZ|MOVISTAR|VODAFONE"
-        r"|ORANGE|YOIGO|JAZZTEL|DIGI|CANAL DE ISABEL|AGUA|LUZ|GAS)\b",
-        50,
-        signo="cargo",
-    ),
-    Regla(
-        "Suscripciones",
-        r"\b(NETFLIX|SPOTIFY|AMAZON PRIME|DISNEY|HBO|MAX|APPLE|GOOGLE"
-        r"|MICROSOFT|OPENAI|ANTHROPIC|ADOBE|DROPBOX)\b",
-        50,
-        signo="cargo",
-    ),
-    Regla("Compras", r"\b(AMAZON|ALIEXPRESS|SHEIN|ZARA|PRIMARK|DECATHLON|IKEA|BAZAR)\b", 40, signo="cargo"),
-    # --- 30: ingresos -----------------------------------------------------
-    Regla("Nómina", r"\b(NOMINA|SALARIO|PAYROLL)\b", 30, signo="abono"),
-    Regla("Rendimientos", r"\bINTERES\b", 20, signo="abono"),
-)
+# El catálogo se carga del contrato compartido, no se declara aquí: la web
+# aplica exactamente las mismas reglas y una segunda copia en TypeScript
+# acabaría discrepando de ésta. Ver apps/web/contratos/README.md.
+REGLAS_BASE: tuple[Regla, ...] = tuple(Regla(**r) for r in reglas_base())
+
+# El nombre exacto de la categoría que no es ni ingreso ni gasto. Como cadena
+# suelta aparecía en tres sitios; escrito distinto en uno solo, los traspasos
+# dejarían de excluirse de los totales sin dar ningún error.
+CATEGORIA_TRASPASO = "Traspaso entre cuentas propias"
 
 
 # ---------------------------------------------------------------------------
@@ -335,13 +278,13 @@ def reglas_para(perfil: Perfil, base: Iterable[Regla] = REGLAS_BASE) -> tuple[Re
         # traspaso. Si el concepto lleva tu nombre, es dinero tuyo moviéndose
         # entre cuentas tuyas — no es ingreso ni gasto, pase lo que pase.
         personales.append(
-            Regla("Traspaso entre cuentas propias", _patron_nombre(perfil.nombre), 110)
+            Regla(CATEGORIA_TRASPASO, _patron_nombre(perfil.nombre), 110)
         )
 
     for iban in perfil.ibans:
         personales.append(
             Regla(
-                "Traspaso entre cuentas propias",
+                CATEGORIA_TRASPASO,
                 r"\b" + re.escape(iban.upper()) + r"\b",
                 110,
                 sobre="crudo",   # la normalización borra los IBAN a propósito

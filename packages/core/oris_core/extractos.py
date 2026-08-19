@@ -38,6 +38,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from ._deps import HAS_ANTHROPIC
+from .contratos import esquema_movimientos
 from .dominio import Hallazgo
 
 if HAS_ANTHROPIC:  # pragma: no cover - depende del entorno
@@ -59,113 +60,12 @@ TOLERANCIA = Decimal("0.00")
 # ---------------------------------------------------------------------------
 # Esquema de salida
 # ---------------------------------------------------------------------------
+#
+# No se declara aquí. Vive en `apps/web/contratos/esquema-movimientos.json` y
+# lo leen por igual este extractor y la web. Duplicarlo en los dos lenguajes
+# garantizaba que acabaran discrepando. Ver el README de esa carpeta.
 
-_IMPORTE = {
-    "type": "string",
-    # Negativo = cargo. Punto decimal, sin separador de miles: formato de
-    # intercambio, no de presentación. El formateo a «1.234,56 €» es de la
-    # interfaz.
-    "pattern": r"^-?\d+\.\d{2}$",
-    "description": (
-        "Importe con punto decimal y dos decimales. Negativo = cargo. "
-        "Si el extracto usa columnas separadas de entrada y salida, lo que "
-        "está en la columna de salida va con signo negativo."
-    ),
-}
-
-ESQUEMA_MOVIMIENTOS: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "banco": {
-            "type": ["string", "null"],
-            "description": "Entidad emisora del extracto, si aparece.",
-        },
-        "iban": {
-            "type": ["string", "null"],
-            "description": "IBAN de la cuenta, sin espacios. null si no consta.",
-        },
-        "periodo_inicio": {
-            "type": ["string", "null"],
-            "description": "Primer día del periodo, en formato AAAA-MM-DD.",
-        },
-        "periodo_fin": {
-            "type": ["string", "null"],
-            "description": "Último día del periodo, en formato AAAA-MM-DD.",
-        },
-        "saldo_inicial": {
-            **_IMPORTE,
-            "type": ["string", "null"],
-            "description": (
-                "Saldo antes del primer movimiento, tal como lo declara el "
-                "extracto. null si el documento no lo indica. NO lo deduzcas "
-                "restando: si no consta, es null."
-            ),
-        },
-        "saldo_final": {
-            **_IMPORTE,
-            "type": ["string", "null"],
-            "description": (
-                "Saldo tras el último movimiento, tal como lo declara el "
-                "extracto. null si el documento no lo indica. NO lo deduzcas "
-                "sumando: si no consta, es null."
-            ),
-        },
-        "movimientos": {
-            "type": "array",
-            "description": "Todos los apuntes, en el orden en que aparecen.",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "fecha": {
-                        "type": "string",
-                        "description": "Fecha de operación, en formato AAAA-MM-DD.",
-                    },
-                    "fecha_valor": {
-                        "type": ["string", "null"],
-                        "description": (
-                            "Fecha valor en AAAA-MM-DD, sólo si el extracto la "
-                            "distingue de la de operación. null en caso contrario."
-                        ),
-                    },
-                    "concepto": {
-                        "type": "string",
-                        "description": "Descripción del apunte, tal cual aparece.",
-                    },
-                    "importe": _IMPORTE,
-                    "saldo": {
-                        **_IMPORTE,
-                        "type": ["string", "null"],
-                        "description": (
-                            "Saldo tras este apunte, si el extracto lo muestra "
-                            "en su propia columna. null si no."
-                        ),
-                    },
-                },
-                "required": ["fecha", "fecha_valor", "concepto", "importe", "saldo"],
-                "additionalProperties": False,
-            },
-        },
-        "paginas_ilegibles": {
-            "type": "array",
-            "description": (
-                "Números de página cuyo contenido no has podido leer con "
-                "seguridad. Vacío si has leído todo."
-            ),
-            "items": {"type": "integer"},
-        },
-    },
-    "required": [
-        "banco",
-        "iban",
-        "periodo_inicio",
-        "periodo_fin",
-        "saldo_inicial",
-        "saldo_final",
-        "movimientos",
-        "paginas_ilegibles",
-    ],
-    "additionalProperties": False,
-}
+ESQUEMA_MOVIMIENTOS: dict[str, Any] = esquema_movimientos()
 
 PROMPT_SISTEMA = (
     "Extraes movimientos de extractos bancarios. Transcribes lo que el documento "

@@ -12,9 +12,13 @@
  * generador de cifras bonitas y falsas.
  */
 
+import { CATEGORIA_TRASPASO } from './contratos';
 import { type Centimos, aCentimos, mesDe } from './dinero';
 
-export const CATEGORIA_TRASPASO = 'Traspaso entre cuentas propias';
+// Se reexporta porque media interfaz la importa de aquí, pero la define el
+// contrato compartido: el nombre tiene que ser idéntico al de la regla de
+// prioridad 100, o el traspaso dejaría de excluirse de los totales.
+export { CATEGORIA_TRASPASO };
 export const SIN_CATEGORIZAR = 'Sin categorizar';
 
 export interface MovimientoVista {

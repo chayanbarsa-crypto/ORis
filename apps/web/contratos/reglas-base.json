@@ -1,0 +1,93 @@
+[
+  {
+    "categoria": "Traspaso entre cuentas propias",
+    "patron": "\\bTRASPASO\\b",
+    "prioridad": 100,
+    "signo": "cualquiera",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Comisiones",
+    "patron": "\\b(MARKUP|COMISION|FEE|MANTENIMIENTO)\\b",
+    "prioridad": 90,
+    "signo": "cualquiera",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Inversión",
+    "patron": "\\b(ISHARES|VANGUARD|UCITS|ETF|ACCIONES|MSCI)\\b",
+    "prioridad": 80,
+    "signo": "cualquiera",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Rendimientos",
+    "patron": "\\b(DIVIDEND|CUPON)\\b",
+    "prioridad": 80,
+    "signo": "abono",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Alimentación",
+    "patron": "\\b(AHORRAMAS|MERCADONA|CARREFOUR|LIDL|ALCAMPO|EROSKI|CONSUM|ALDI|SUPERMERCAD\\w*|SUPERCOR|ALIMENTACION|FRUTERIA|CARNICERIA|CASQUERIA|PESCADERIA|PANADERIA|CHARCUTERIA|ULTRAMARINOS|HIPER)\\b",
+    "prioridad": 50,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Restauración",
+    "patron": "\\b(BAR|CAFETERIA|CAFE|RESTAURANTE|TABERNA|PIZZ\\w*|BURGER|KEBAB|UBER EATS|GLOVO|JUST EAT|DELIVEROO|ALITAS|ASADOR|CERVECERIA)\\b",
+    "prioridad": 50,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Salud",
+    "patron": "\\b(FARMACIA|FCIA|PARAFARMACIA|CLINICA|DENTAL|OPTICA|HOSPITAL|LABORATORIO|FISIOTERAPIA)\\b",
+    "prioridad": 50,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Transporte",
+    "patron": "\\b(RENFE|METRO|EMT|CERCANIAS|CABIFY|UBER|BOLT|TAXI|REPSOL|CEPSA|GALP|SHELL|PETRON\\w*|GASOLINERA|PARKING|AUTOPISTA|BLABLACAR)\\b",
+    "prioridad": 50,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Suministros",
+    "patron": "\\b(IBERDROLA|ENDESA|NATURGY|REPSOL LUZ|HOLALUZ|MOVISTAR|VODAFONE|ORANGE|YOIGO|JAZZTEL|DIGI|CANAL DE ISABEL|AGUA|LUZ|GAS)\\b",
+    "prioridad": 50,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Suscripciones",
+    "patron": "\\b(NETFLIX|SPOTIFY|AMAZON PRIME|DISNEY|HBO|MAX|APPLE|GOOGLE|MICROSOFT|OPENAI|ANTHROPIC|ADOBE|DROPBOX)\\b",
+    "prioridad": 50,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Compras",
+    "patron": "\\b(AMAZON|ALIEXPRESS|SHEIN|ZARA|PRIMARK|DECATHLON|IKEA|BAZAR)\\b",
+    "prioridad": 40,
+    "signo": "cargo",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Nómina",
+    "patron": "\\b(NOMINA|SALARIO|PAYROLL)\\b",
+    "prioridad": 30,
+    "signo": "abono",
+    "sobre": "raiz"
+  },
+  {
+    "categoria": "Rendimientos",
+    "patron": "\\bINTERES\\b",
+    "prioridad": 20,
+    "signo": "abono",
+    "sobre": "raiz"
+  }
+]
