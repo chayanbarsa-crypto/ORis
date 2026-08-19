@@ -78,7 +78,7 @@ function regla(v: ReturnType<typeof validar>, nombre: string) {
   comprobar(!v.cuadra, 'un movimiento que falta rompe el cuadre');
   const h = regla(v, 'Cuadre de saldos');
   comprobar(h?.severidad === 'Crítica', 'y es crítico');
-  comprobar(h?.evidencia.includes('80,50'), 'la evidencia cita las dos cifras', h?.evidencia);
+  comprobar(!!h?.evidencia.includes('80,50'), 'la evidencia cita las dos cifras', h?.evidencia);
 }
 
 {
@@ -146,7 +146,7 @@ function regla(v: ReturnType<typeof validar>, nombre: string) {
   );
   const h = regla(v, 'Continuidad del saldo');
   comprobar(!!h, 'un salto en el saldo se detecta');
-  comprobar(h?.evidencia.includes('DOS'), 'y la evidencia dice dónde', h?.evidencia);
+  comprobar(!!h?.evidencia.includes('DOS'), 'y la evidencia dice dónde', h?.evidencia);
 }
 
 // --- orden cronológico ----------------------------------------------------
