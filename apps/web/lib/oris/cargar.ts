@@ -10,7 +10,7 @@
  * uno vacío — parece que funciona, y el fallo se descubre mucho más tarde.
  */
 
-import { desc } from 'drizzle-orm';
+import { desc, sql } from 'drizzle-orm';
 
 import { db, hayBaseDeDatos } from '@/lib/db';
 import { movimientos as tablaMovimientos } from '@/lib/db/schema';
@@ -61,7 +61,24 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
       motivo: null,
     };
   } catch (e) {
-    return { movimientos: [], motivo: explicar(e) };
+    return { movimientos: [], motivo: `${await donde()} ${explicar(e)}` };
+  }
+}
+
+/**
+ * ¿Falló la conexión o falló la consulta?
+ *
+ * Son problemas opuestos —uno se arregla en la cadena de conexión, el otro en
+ * la base de datos— y desde fuera se ven idénticos: la página vacía. Un
+ * `select 1` los separa. Sólo se ejecuta cuando ya ha fallado algo, así que no
+ * cuesta un viaje de más en el camino bueno.
+ */
+async function donde(): Promise<string> {
+  try {
+    await db().execute(sql`select 1`);
+    return 'Conecté con Postgres, pero la consulta falló:';
+  } catch {
+    return 'No llegué a conectar con Postgres:';
   }
 }
 
@@ -98,9 +115,5 @@ function explicar(e: unknown): string {
   };
 
   const pista = pistas[codigo];
-  return pista
-    ? `${pista} (Postgres ${codigo}: ${detalle})`
-    : `La base de datos está configurada pero la consulta falló${
-        codigo ? ` (${codigo})` : ''
-      }: ${detalle}`;
+  return pista ? `${pista} (Postgres ${codigo}: ${detalle})` : detalle;
 }
