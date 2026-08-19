@@ -8,14 +8,27 @@
  * de verdad y que no.
  */
 
+import { IresEye } from '@/components/ui/IresEye';
 import { useIres } from '@/lib/ires/context';
 
 export function ChatPanel() {
   const { state } = useIres();
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col" aria-label="Conversación con ORis">
-      <div className="flex flex-1 items-center justify-center px-6 py-10">
+    <section
+      className="flex min-h-0 flex-1 flex-col border-t border-white/[0.07] md:border-l md:border-t-0"
+      aria-label="Conversación con ORis"
+    >
+      <div className="flex items-center gap-2.5 px-5 py-3">
+        {/* El ojo alado es el emblema de ORis, y aqui hace de interlocutor: es
+            la cara de quien responde, no un adorno. Hereda el color del estado,
+            asi que cambia con el animo de la constelacion sin tocar nada. */}
+        <IresEye size={26} />
+        <span className="text-[0.58rem] uppercase tracking-[0.26em] text-white/35">Copiloto</span>
+      </div>
+
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-10">
+        <IresEye size={92} className="opacity-40" />
         <p className="max-w-sm text-center text-sm leading-relaxed text-white/25">
           ORis está despierta y en estado <span className="text-white/50">{state}</span>.
           <br />

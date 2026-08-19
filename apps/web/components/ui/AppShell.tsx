@@ -21,6 +21,7 @@ import { FinanceSidebar } from '@/components/finance/FinanceSidebar';
 import { PanelPrincipal } from '@/components/panel/PanelPrincipal';
 import { ListaMovimientos } from '@/components/panel/ListaMovimientos';
 import type { MovimientoVista } from '@/lib/oris/agregados';
+import { IresEye } from './IresEye';
 import { StatusBadge } from './StatusBadge';
 
 export interface AppShellProps {
@@ -39,11 +40,21 @@ export function AppShell({ movimientos = [], motivoVacio }: AppShellProps) {
       transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
     >
       <header className="flex items-center justify-between border-b border-white/[0.07] px-5 py-3 backdrop-blur-sm sm:px-7">
-        <span className="text-sm font-light tracking-[0.32em] text-white/80">ORis</span>
+        <span className="flex items-center gap-2.5">
+          <IresEye size={30} className="opacity-80" />
+          <span className="text-sm font-light tracking-[0.32em] text-white/80">ORis</span>
+        </span>
         <StatusBadge />
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+      {/*
+        El plano de datos.
+        Debajo sigue el cielo, pero atenuado y desenfocado: los importes se
+        apoyan en una superficie en vez de flotar sobre las estrellas. Sin este
+        plano no hay jerarquia — todo queda al mismo nivel que el fondo — y una
+        herramienta financiera se lee, no se contempla.
+      */}
+      <div className="flex min-h-0 flex-1 flex-col bg-[#060C1C]/72 backdrop-blur-2xl md:flex-row">
         <FinanceSidebar seccion={seccion} onSeccion={setSeccion} />
 
         {seccion === 'movimientos' ? (

@@ -55,9 +55,9 @@ export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps
   if (movimientos.length === 0) {
     return (
       <section className="flex min-h-0 flex-1 items-center justify-center px-6 py-10">
-        <div className="max-w-md text-center">
-          <p className="text-sm text-white/55">Todavía no hay movimientos que enseñar.</p>
-          <p className="mt-2 text-[0.78rem] leading-relaxed text-white/35">
+        <div className="max-w-md rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-7 text-center">
+          <p className="text-sm text-white/60">Todavía no hay movimientos que enseñar.</p>
+          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-white/35">
             {motivoVacio ??
               'Sube un extracto y ORis lo auditará, categorizará y guardará. Hasta entonces no hay nada que contar — y prefiero decirlo a inventar cifras.'}
           </p>

@@ -53,11 +53,28 @@ function createStars(count: number): Star[] {
   return stars;
 }
 
+/**
+ * Cuanto se apaga el cielo una vez dentro, y a que velocidad.
+ *
+ * Antes del desbloqueo el campo estelar *es* la pantalla. Despues es el fondo
+ * de una herramienta que ensena dinero, y un cielo a plena intensidad detras
+ * de una tabla de importes compite con lo que hay que leer. No se apaga del
+ * todo — ORis seguiria siendo espacial — pero cede el primer plano.
+ */
+const RETIRO_DENTRO = 0.62;
+const RETIRO_POR_SEGUNDO = 0.9;
+
 export function StarField() {
-  const { profile, theme } = useIres();
+  const { profile, theme, state } = useIres();
   const reduced = useReducedMotion();
 
   const stars = useMemo(() => createStars(STAR_COUNT), []);
+
+  // El retroceso se interpola dentro del bucle, no con una transicion CSS: la
+  // capa es un canvas y la opacidad la decide cada estrella al pintarse.
+  const retiroRef = useRef(0);
+  const dentroRef = useRef(false);
+  dentroRef.current = state === 'idle';
 
   // El perfil se lee dentro del bucle a traves de refs: si el draw dependiera
   // de ellos, cada cambio de estado recrearia el callback en cada frame.
@@ -76,9 +93,17 @@ export function StarField() {
 
     ctx.clearRect(0, 0, width, height);
 
+    // Avance del retroceso hacia su destino. `delta` viene en segundos, asi
+    // que la velocidad no depende de los fotogramas que de la maquina.
+    const destino = dentroRef.current ? RETIRO_DENTRO : 0;
+    const paso = RETIRO_POR_SEGUNDO * delta;
+    const r = retiroRef.current;
+    retiroRef.current = r < destino ? Math.min(destino, r + paso) : Math.max(destino, r - paso);
+    const presencia = 1 - retiroRef.current;
+
     // Velo de color hacia el tono actual: es lo que hace que el fondo
     // "reaccione" al estado sin volverse una discoteca.
-    const tint = Math.min(0.09, 0.02 + p.starActivity * 0.035);
+    const tint = Math.min(0.09, 0.02 + p.starActivity * 0.035) * presencia;
     ctx.fillStyle = rgba(th.glow, tint);
     ctx.fillRect(0, 0, width, height);
 
@@ -98,7 +123,7 @@ export function StarField() {
       const flicker = quiet
         ? 0
         : Math.sin(time * s.twinkle * (1 + activity * 0.8) + s.phase) * 0.28 * activity;
-      const alpha = Math.max(0.04, Math.min(1, s.baseAlpha + flicker));
+      const alpha = Math.max(0.04, Math.min(1, s.baseAlpha + flicker)) * presencia;
 
       ctx.beginPath();
       ctx.arc(s.x * width, s.y * height, s.radius, 0, Math.PI * 2);
@@ -113,7 +138,7 @@ export function StarField() {
       const maxR = Math.hypot(width, height) * 0.55;
       ctx.beginPath();
       ctx.arc(width / 2, height / 2, t * maxR, 0, Math.PI * 2);
-      ctx.strokeStyle = rgba(th.glow, (1 - t) * 0.1);
+      ctx.strokeStyle = rgba(th.glow, (1 - t) * 0.1 * presencia);
       ctx.lineWidth = 1;
       ctx.stroke();
     }
