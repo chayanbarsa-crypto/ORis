@@ -99,7 +99,11 @@ export async function POST(req: Request) {
     // El veredicto manda. Si no cuadra, se devuelve el porqué con su evidencia
     // y no se toca la base de datos.
     if (!veredicto.cuadra) {
-      const critico = veredicto.hallazgos.find((h) => h.estado === 'No cumple');
+      // El motivo del rechazo es el hallazgo que BLOQUEA, no el primero que
+      // incumple. Antes se cogía el primero incumplido y el mensaje acababa
+      // hablando del orden de las fechas —un aviso— cuando lo que impedía
+      // guardar era otra cosa completamente distinta.
+      const critico = veredicto.bloqueantes[0];
       return NextResponse.json(
         {
           estado: 'rechazado',
@@ -153,6 +157,7 @@ export async function POST(req: Request) {
       estado: resultado.estado,
       extractoId: resultado.extractoId,
       movimientos: resultado.movimientos,
+      solapados: resultado.estado === 'guardado' ? resultado.solapados : 0,
       banco: extraido.banco,
       periodo: { inicio: extraido.periodo_inicio, fin: extraido.periodo_fin },
       categorizados: categorias.categorizados,

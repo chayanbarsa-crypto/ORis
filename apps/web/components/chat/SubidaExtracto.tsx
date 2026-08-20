@@ -11,6 +11,9 @@
  * - **La espera se cuenta en segundos.** Leer siete páginas tarda minutos, y un
  *   indicador que sólo gira hace pensar que se ha colgado. Ver el tiempo subir
  *   dice que sigue vivo.
+ * - **Se puede arrastrar el fichero encima.** En el móvil se toca el botón; en
+ *   el ordenador, soltarlo sobre el panel es el gesto natural y no tener que
+ *   pasar por un diálogo de ficheros ahorra la mitad de los pasos.
  * - **Un rechazo no es un error.** Que un extracto no cuadre es ORis haciendo
  *   su trabajo: encontró que faltan apuntes. Se enseña con su evidencia, en
  *   ámbar, no en rojo — y se dice claramente que no se ha guardado nada.
@@ -34,6 +37,7 @@ type Resultado =
       tipo: 'guardado';
       duplicado: boolean;
       movimientos: number;
+      solapados: number;
       banco: string | null;
       categorizados: number;
       sinCategorizar: number;
@@ -48,6 +52,7 @@ export function SubidaExtracto() {
   const [subiendo, setSubiendo] = useState<string | null>(null);
   const [segundos, setSegundos] = useState(0);
   const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [encima, setEncima] = useState(false);
 
   useEffect(() => {
     if (!subiendo) return;
@@ -73,6 +78,7 @@ export function SubidaExtracto() {
             tipo: 'guardado',
             duplicado: datos.estado === 'duplicado',
             movimientos: datos.movimientos ?? 0,
+            solapados: datos.solapados ?? 0,
             banco: datos.banco ?? null,
             categorizados: datos.categorizados ?? 0,
             sinCategorizar: datos.sinCategorizar ?? 0,
@@ -111,7 +117,25 @@ export function SubidaExtracto() {
   );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div
+      className={`flex flex-col gap-3 rounded-xl border border-dashed p-3 transition-colors ${
+        encima ? 'border-white/30 bg-white/[0.04]' : 'border-transparent'
+      }`}
+      // `onDragOver` tiene que llamar a preventDefault o el navegador abre el
+      // fichero en una pestaña nueva en vez de dejarlo caer aquí.
+      onDragOver={(e) => {
+        e.preventDefault();
+        if (!subiendo) setEncima(true);
+      }}
+      onDragLeave={() => setEncima(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setEncima(false);
+        if (subiendo) return;
+        const f = e.dataTransfer.files?.[0];
+        if (f) void enviar(f);
+      }}
+    >
       {resultado ? <Respuesta resultado={resultado} /> : null}
 
       {subiendo ? (
@@ -150,13 +174,19 @@ export function SubidaExtracto() {
         </svg>
         {subiendo ? 'Leyendo el extracto…' : 'Adjuntar extracto (PDF, Excel o CSV)'}
       </button>
+
+      {!subiendo ? (
+        <p className="text-[0.68rem] text-white/20">
+          O arrastra el fichero hasta aquí.
+        </p>
+      ) : null}
     </div>
   );
 }
 
 function Respuesta({ resultado }: { resultado: Resultado }) {
   if (resultado.tipo === 'guardado') {
-    const { duplicado, movimientos, banco, categorizados, sinCategorizar } = resultado;
+    const { duplicado, movimientos, solapados, banco, categorizados, sinCategorizar } = resultado;
     return (
       <div className="rounded-xl border border-white/[0.09] bg-white/[0.02] px-3.5 py-3 text-[0.76rem] leading-relaxed text-white/60">
         {duplicado ? (
@@ -171,6 +201,12 @@ function Respuesta({ resultado }: { resultado: Resultado }) {
               Guardado: <strong className="font-normal text-white/85">{movimientos}</strong>{' '}
               movimientos{banco ? ` de ${banco}` : ''}. El cuadre sale.
             </p>
+            {solapados > 0 ? (
+              <p className="mt-1.5">
+                <strong className="font-normal text-white/85">{solapados}</strong> ya los tenía de
+                un extracto anterior, así que no los he vuelto a contar.
+              </p>
+            ) : null}
             <p className="mt-1.5 text-white/40">
               {categorizados} categorizados por reglas
               {sinCategorizar > 0 ? `, ${sinCategorizar} pendientes de revisar` : ''}.

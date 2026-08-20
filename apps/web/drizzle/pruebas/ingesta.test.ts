@@ -167,11 +167,20 @@ async function main() {
   // --- 5. Todo o nada: la transacción se deshace entera --------------------
   //     Se declara cuadrar, pero los importes no llevan del inicial al final.
   //     La comprobación final dentro de la transacción tiene que lanzar.
+  //
+  //     Los movimientos son distintos de los del extracto anterior a
+  //     propósito: si se repitieran, la detección de solape los reconocería
+  //     como ya guardados y no habría nada nuevo que comprobar. Aquí se está
+  //     probando la comprobación del cuadre, no la del solape.
   const mentiroso: ExtraccionJSON = {
     ...extraccion,
     documento: 'mentiroso.pdf',
     cuadra: true,
     saldo_final: '9999.99', // no se corresponde con los movimientos
+    movimientos: extraccion.movimientos.map((m, i) => ({
+      ...m,
+      concepto: `${m.concepto} (mentiroso ${i})`,
+    })),
   };
   const pdfMentiroso = new Uint8Array([...pdf, 0x0a, 0x0a]);
 

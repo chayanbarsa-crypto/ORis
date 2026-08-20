@@ -96,10 +96,62 @@ function regla(v: ReturnType<typeof validar>, nombre: string) {
 
 {
   const v = validar(extraccion({ saldo_inicial: null }));
-  comprobar(!v.cuadra, 'sin saldo inicial no se da por bueno');
+  comprobar(!v.cuadra, 'sin saldo inicial ni cadena de saldos no se da por bueno');
+  comprobar(v.bloqueantes.length === 1, 'y el bloqueo se declara como tal', v.bloqueantes);
   comprobar(
-    regla(v, 'Cuadre de saldos')?.estado === 'Requiere revisión',
-    'se declara no evaluable, no se aprueba',
+    v.bloqueantes[0]?.regla === 'Cuadre de saldos',
+    'nombrando la comprobación que falló',
+    v.bloqueantes[0],
+  );
+}
+
+{
+  // Muchos extractos no declaran los saldos del periodo pero sí imprimen el
+  // saldo tras cada apunte. Una cadena completa y sin rupturas demuestra lo
+  // mismo que el cuadre: que no falta ninguno por el camino.
+  const v = validar(
+    extraccion({
+      saldo_inicial: null,
+      saldo_final: null,
+      movimientos: [
+        m({ importe: '-10.00', saldo: '90.00', concepto: 'UNO' }),
+        m({ importe: '-20.00', saldo: '70.00', concepto: 'DOS' }),
+      ],
+    }),
+  );
+  comprobar(v.cuadra, 'sin saldos declarados pero con cadena intacta, se acepta');
+  comprobar(v.bloqueantes.length === 0, 'y nada bloquea');
+}
+
+{
+  const v = validar(
+    extraccion({
+      saldo_inicial: null,
+      saldo_final: null,
+      movimientos: [
+        m({ importe: '-10.00', saldo: '90.00', concepto: 'UNO' }),
+        m({ importe: '-20.00', saldo: '65.00', concepto: 'DOS' }),
+      ],
+    }),
+  );
+  comprobar(!v.cuadra, 'pero si la cadena se rompe, no');
+}
+
+{
+  // El orden de fechas es un aviso, no un bloqueo: los bancos ordenan por
+  // fecha valor y esto pasa a menudo en extractos perfectamente completos.
+  const v = validar(
+    extraccion({
+      movimientos: [
+        m({ importe: '0.00', fecha: '2026-08-18', concepto: 'UNO' }),
+        m({ importe: '0.00', fecha: '2026-08-17', concepto: 'DOS' }),
+      ],
+    }),
+  );
+  comprobar(
+    v.bloqueantes.every((h) => h.regla !== 'Orden cronológico'),
+    'el desorden de fechas nunca es el motivo del rechazo',
+    v.bloqueantes,
   );
 }
 

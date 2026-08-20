@@ -68,6 +68,16 @@ export interface Veredicto {
   hallazgos: Hallazgo[];
   /** Si es `false`, no se guarda nada. */
   cuadra: boolean;
+  /**
+   * Los hallazgos por los que NO se guarda, si es que hay alguno.
+   *
+   * Existe porque «no cumple» y «esto bloquea» no son lo mismo: que ocho
+   * apuntes rompan el orden de fechas es un aviso —los bancos ordenan por fecha
+   * valor, y pasa a menudo—, mientras que una página ilegible significa que
+   * faltan movimientos. Sin distinguirlos, el mensaje de rechazo señalaba el
+   * primer hallazgo incumplido en vez de la causa real.
+   */
+  bloqueantes: Hallazgo[];
   /** Suma de los importes, en céntimos. */
   suma: Centimos;
 }
@@ -81,18 +91,52 @@ export function validar(e: Extraccion): Veredicto {
   const final = aCentimos(e.saldo_final);
 
   // --- 1. El cuadre ------------------------------------------------------
+  const bloqueantes: Hallazgo[] = [];
   let cuadra = false;
+
   if (inicial === null || final === null) {
+    // Sin saldos declarados queda el plan B: la columna de saldo corrido.
+    //
+    // Si TODOS los apuntes la traen y la cadena no se rompe en ningún punto,
+    // eso demuestra lo mismo que el cuadre —que no falta ninguno por el
+    // camino— y con la misma aritmética exacta. Muchos extractos no declaran
+    // los saldos del periodo pero sí imprimen el saldo tras cada apunte;
+    // rechazarlos por eso sería tirar información que está delante.
+    const cadena = cadenaIntacta(e.movimientos);
     const cual = inicial === null ? 'inicial' : 'final';
-    hallazgos.push({
-      regla: 'Cuadre de saldos',
-      pagina: 1,
-      severidad: 'Media',
-      estado: 'Requiere revisión',
-      descripcion: `No evaluable: el extracto no declara el saldo ${cual}.`,
-      evidencia: 'Campo ausente en el documento.',
-      sugerencia: 'Sin ambos saldos no se puede verificar que no falten apuntes.',
-    });
+
+    if (cadena.completa && cadena.rupturas === 0) {
+      cuadra = true;
+      hallazgos.push({
+        regla: 'Cuadre de saldos',
+        pagina: 1,
+        severidad: 'Informativa',
+        estado: 'Cumple',
+        descripcion:
+          `El extracto no declara el saldo ${cual}, pero la cadena de saldos ` +
+          `está completa: ${e.movimientos.length} movimientos, ninguna ruptura.`,
+        evidencia:
+          `Cada apunte deja el saldo que el siguiente toma como punto de ` +
+          `partida, de ${formatear(cadena.primero!)} a ${formatear(cadena.ultimo!)}.`,
+        sugerencia: '',
+      });
+    } else {
+      const h: Hallazgo = {
+        regla: 'Cuadre de saldos',
+        pagina: 1,
+        severidad: 'Crítica',
+        estado: 'No cumple',
+        descripcion: `No evaluable: el extracto no declara el saldo ${cual}.`,
+        evidencia: cadena.completa
+          ? `La cadena de saldos tampoco sirve: se rompe en ${cadena.rupturas} punto(s).`
+          : 'Y no todos los apuntes traen saldo corrido, así que tampoco hay cadena que seguir.',
+        sugerencia:
+          'Sin saldos ni cadena completa no puedo comprobar que no falten apuntes, ' +
+          'y prefiero no guardar unas cuentas que no puedo verificar.',
+      };
+      hallazgos.push(h);
+      bloqueantes.push(h);
+    }
   } else {
     const esperado = inicial + suma;
     const desvio = esperado - final;
@@ -131,7 +175,7 @@ export function validar(e: Extraccion): Veredicto {
   const ilegibles = e.movimientos.filter((_, i) => importes[i] === null);
   if (ilegibles.length > 0) {
     cuadra = false;
-    hallazgos.push({
+    const h: Hallazgo = {
       regla: 'Formato de importes',
       pagina: 1,
       severidad: 'Crítica',
@@ -139,7 +183,9 @@ export function validar(e: Extraccion): Veredicto {
       descripcion: `${ilegibles.length} importe(s) no tienen el formato acordado.`,
       evidencia: `«${ilegibles[0].concepto}» trae «${ilegibles[0].importe}».`,
       sugerencia: 'Se esperan dos decimales con punto, por ejemplo -12.34.',
-    });
+    };
+    hallazgos.push(h);
+    bloqueantes.push(h);
   }
 
   // --- 3. Orden cronológico ----------------------------------------------
@@ -207,7 +253,7 @@ export function validar(e: Extraccion): Veredicto {
   // --- 6. Páginas que el modelo no pudo leer ------------------------------
   if (e.paginas_ilegibles.length > 0) {
     cuadra = false;
-    hallazgos.push({
+    const h: Hallazgo = {
       regla: 'Integridad de la extracción',
       pagina: e.paginas_ilegibles[0],
       severidad: 'Crítica',
@@ -215,10 +261,52 @@ export function validar(e: Extraccion): Veredicto {
       descripcion: `El modelo no pudo leer ${e.paginas_ilegibles.length} página(s).`,
       evidencia: `Páginas declaradas ilegibles: ${e.paginas_ilegibles.join(', ')}.`,
       sugerencia: 'Faltan movimientos con seguridad. No guardar sin revisar.',
-    });
+    };
+    hallazgos.push(h);
+    bloqueantes.push(h);
   }
 
-  return { hallazgos, cuadra, suma };
+  return { hallazgos, cuadra, bloqueantes, suma };
+}
+
+/**
+ * Recorre la columna de saldo corrido y dice si forma una cadena sin huecos.
+ *
+ * `completa` significa que todos los apuntes traen saldo; `rupturas`, en
+ * cuántos puntos el saldo de uno más el importe del siguiente no da el saldo
+ * del siguiente. Cero rupturas sobre una cadena completa demuestra lo mismo
+ * que el cuadre de saldos declarados: que entre el primero y el último no
+ * falta ningún apunte.
+ */
+function cadenaIntacta(movimientos: readonly MovimientoExtraido[]): {
+  completa: boolean;
+  rupturas: number;
+  primero: Centimos | null;
+  ultimo: Centimos | null;
+} {
+  if (movimientos.length === 0) {
+    return { completa: false, rupturas: 0, primero: null, ultimo: null };
+  }
+
+  const pasos = movimientos.map((m) => ({
+    saldo: aCentimos(m.saldo),
+    importe: aCentimos(m.importe),
+  }));
+
+  const completa = pasos.every((p) => p.saldo !== null && p.importe !== null);
+  if (!completa) return { completa: false, rupturas: 0, primero: null, ultimo: null };
+
+  let rupturas = 0;
+  for (let i = 1; i < pasos.length; i++) {
+    if (pasos[i - 1].saldo! + pasos[i].importe! !== pasos[i].saldo!) rupturas++;
+  }
+
+  return {
+    completa: true,
+    rupturas,
+    primero: pasos[0].saldo,
+    ultimo: pasos[pasos.length - 1].saldo,
+  };
 }
 
 /**
