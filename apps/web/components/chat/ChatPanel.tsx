@@ -9,6 +9,7 @@
  */
 
 import { IresEye } from '@/components/ui/IresEye';
+import { SubidaExtracto } from './SubidaExtracto';
 import { useIres } from '@/lib/ires/context';
 
 export function ChatPanel() {
@@ -27,12 +28,22 @@ export function ChatPanel() {
         <span className="text-[0.58rem] uppercase tracking-[0.26em] text-white/35">Copiloto</span>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-10">
-        <IresEye size={92} className="opacity-40" />
-        <p className="max-w-sm text-center text-sm leading-relaxed text-white/25">
-          ORis está despierta y en estado <span className="text-white/50">{state}</span>.
-          <br />
-          La conversación llega en la Fase 2.
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-5 overflow-y-auto px-5 py-8">
+        <div className="flex flex-col items-center gap-3">
+          <IresEye size={82} className="opacity-40" />
+          <p className="max-w-sm text-center text-sm leading-relaxed text-white/30">
+            Suéltame un extracto en PDF y lo audito, lo categorizo y lo guardo.
+          </p>
+        </div>
+
+        {/* Lo único que ORis sabe hacer todavía. Conversar llega después, y
+            hasta entonces el campo de texto sigue deshabilitado y diciéndolo:
+            un chat que finge responder haría imposible saber qué está conectado
+            de verdad. */}
+        <SubidaExtracto />
+
+        <p className="text-[0.68rem] leading-relaxed text-white/20">
+          Estado: {state}. La conversación llega después; de momento sólo leo extractos.
         </p>
       </div>
 

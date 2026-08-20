@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^11.15.0",
     "next": "^15.1.3",

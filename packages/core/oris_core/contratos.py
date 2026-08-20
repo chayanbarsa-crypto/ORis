@@ -60,3 +60,18 @@ def reglas_base() -> list[dict[str, Any]]:
     if not isinstance(reglas, list) or not reglas:
         raise ValueError("reglas-base.json debe ser una lista no vacía de reglas.")
     return reglas
+
+
+def prompt_extraccion() -> str:
+    """Las instrucciones que recibe el modelo al extraer un extracto.
+
+    Va en un JSON y no como constante de Python por la misma razón que el
+    esquema:
+    la web pide la extracción con estas mismas palabras. Dos prompts distintos
+    sobre el mismo PDF dan dos extracciones distintas.
+    """
+    datos = _leer("prompt-extraccion.json")
+    texto = datos.get("sistema", "") if isinstance(datos, dict) else ""
+    if not isinstance(texto, str) or not texto.strip():
+        raise ValueError("prompt-extraccion.json no trae la clave 'sistema'.")
+    return texto.strip()

@@ -19,10 +19,13 @@
 
 import { createHash } from 'node:crypto';
 
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from './index';
-import { extractos, hallazgos, movimientos } from './schema';
+import { categorias, extractos, hallazgos, movimientos } from './schema';
+
+/** El tipo de la transacción de Drizzle, que no se exporta con nombre propio. */
+type Transaccion = Parameters<Parameters<ReturnType<typeof db>['transaction']>[0]>[0];
 
 /** Forma de la salida de `extraer.py --json`. Los importes son texto. */
 export interface ExtraccionJSON {
@@ -41,6 +44,10 @@ export interface ExtraccionJSON {
     importe: string;
     saldo: string | null;
     posicion: number;
+    /** Nombre de la categoría, no su id: las categorías se crean aquí si hacen falta. */
+    categoria?: string | null;
+    /** Quién la asignó. Sin categoría no hay origen. */
+    origen?: 'regla' | 'ia' | 'manual' | null;
   }>;
   hallazgos: Array<{
     regla: string;
@@ -136,6 +143,12 @@ export async function ingerir(
       })
       .returning({ id: extractos.id });
 
+    // Las categorías se resuelven por NOMBRE y se crean si no existen, dentro
+    // de la misma transacción. Guardar el nombre en el movimiento habría sido
+    // más simple, pero entonces renombrar una categoría obligaría a reescribir
+    // cada fila y las de dos meses atrás se quedarían con el nombre viejo.
+    const idPorNombre = await resolverCategorias(tx, usuarioId, extraccion.movimientos);
+
     await tx.insert(movimientos).values(
       extraccion.movimientos.map((m, i) => ({
         extractoId: extracto.id,
@@ -145,6 +158,8 @@ export async function ingerir(
         concepto: m.concepto,
         importe: m.importe,
         saldo: m.saldo,
+        categoriaId: m.categoria ? (idPorNombre.get(m.categoria) ?? null) : null,
+        origen: m.categoria ? (m.origen ?? 'regla') : null,
         // La posición del extractor manda; el índice es el plan B, porque los
         // bancos no siempre dan hora y el orden de la página es el único
         // criterio para desempatar apuntes del mismo día.
@@ -205,4 +220,36 @@ export async function ingerir(
       movimientos: comprobacion.n,
     };
   });
+}
+
+/**
+ * Traduce nombres de categoría a sus identificadores, creando las que falten.
+ *
+ * Va dentro de la transacción de la ingesta a propósito: si el guardado se
+ * deshace, las categorías que se hayan creado por el camino se deshacen con él.
+ * De otro modo un extracto rechazado dejaría categorías huérfanas en la lista.
+ *
+ * `onConflictDoNothing` sobre el índice único (usuario, nombre) hace que dos
+ * subidas simultáneas con la misma categoría nueva no choquen; después se
+ * releen todas, así que da igual quién la creara.
+ */
+async function resolverCategorias(
+  tx: Transaccion,
+  usuarioId: string,
+  movs: ExtraccionJSON['movimientos'],
+): Promise<Map<string, string>> {
+  const nombres = [...new Set(movs.map((m) => m.categoria).filter((n): n is string => !!n))];
+  if (nombres.length === 0) return new Map();
+
+  await tx
+    .insert(categorias)
+    .values(nombres.map((nombre) => ({ usuarioId, nombre })))
+    .onConflictDoNothing();
+
+  const filas = await tx
+    .select({ id: categorias.id, nombre: categorias.nombre })
+    .from(categorias)
+    .where(and(eq(categorias.usuarioId, usuarioId), inArray(categorias.nombre, nombres)));
+
+  return new Map(filas.map((f) => [f.nombre, f.id]));
 }

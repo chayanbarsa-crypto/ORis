@@ -12,6 +12,7 @@
  */
 
 import esquemaJson from '@/contratos/esquema-movimientos.json';
+import promptJson from '@/contratos/prompt-extraccion.json';
 import reglasJson from '@/contratos/reglas-base.json';
 
 /** Sobre qué texto se compara una regla. */
@@ -119,3 +120,19 @@ if (!REGLAS_BASE.some((r) => r.categoria === CATEGORIA_TRASPASO)) {
       'Sin ella los traspasos entre cuentas propias contarían como ingreso y gasto.',
   );
 }
+
+/**
+ * Las instrucciones que recibe el modelo al extraer un extracto.
+ *
+ * Compartidas con `oris_core` por la misma razón que el esquema: si la web y el
+ * extractor de línea de comandos piden la extracción con palabras distintas,
+ * extraen distinto del mismo PDF, y comparar sus resultados dejaría de
+ * significar nada.
+ */
+export const PROMPT_EXTRACCION: string = (() => {
+  const texto = (promptJson as { sistema?: unknown }).sistema;
+  if (typeof texto !== 'string' || texto.trim() === '') {
+    throw new Error("prompt-extraccion.json no trae la clave 'sistema'.");
+  }
+  return texto.trim();
+})();
