@@ -1,12 +1,14 @@
 /**
- * Subida de un extracto: PDF → auditoría → base de datos.
+ * Subida de un extracto: PDF, Excel o CSV → auditoría → base de datos.
  *
  * El orden de los pasos es el contrato de esta ruta, y no es arbitrario:
  *
  *   1. Hash del fichero y comprobación de duplicado. Antes de gastar una
  *      llamada al modelo, porque volver a subir el mismo PDF desde el móvil es
  *      lo más fácil del mundo.
- *   2. Extracción con el modelo.
+ *   2. Lectura. Un PDF pasa por el modelo porque hay que *ver* la maquetación
+ *      en columnas; un Excel o un CSV los lee el código, que es exacto,
+ *      instantáneo y gratis.
  *   3. **Validación determinista.** Aquí se decide si esto se guarda. El modelo
  *      no vota.
  *   4. Categorización por reglas, sólo si lo anterior pasó.
@@ -23,6 +25,8 @@ import { hayBaseDeDatos } from '@/lib/db';
 import { hashDocumento, ingerir, type ExtraccionJSON } from '@/lib/db/ingesta';
 import { categorizar } from '@/lib/oris/categorizar';
 import { ErrorExtraccion, MODELO, extraer, hayClaveIA } from '@/lib/oris/extraccion';
+import { formatoDe, leerTabular } from '@/lib/oris/formatos';
+import { ErrorTabular } from '@/lib/oris/tabular';
 import { validar } from '@/lib/oris/validacion';
 
 // Node, no Edge: hacen falta `crypto`, el driver de Postgres y Buffer.
@@ -44,14 +48,6 @@ export async function POST(req: Request) {
   if (!hayBaseDeDatos) {
     return error(503, 'No hay base de datos configurada, así que no hay dónde guardar nada.');
   }
-  if (!hayClaveIA()) {
-    return error(
-      503,
-      'No hay ANTHROPIC_API_KEY configurada, así que ORis no puede leer el PDF.',
-      'Añádela en las variables de entorno de Vercel y vuelve a desplegar.',
-    );
-  }
-
   let fichero: File | null = null;
   try {
     const form = await req.formData();
@@ -61,7 +57,27 @@ export async function POST(req: Request) {
     return error(400, 'No pude leer el fichero enviado.');
   }
 
-  if (!fichero) return error(400, 'Falta el PDF. Adjúntalo en el campo «extracto».');
+  if (!fichero) return error(400, 'Falta el fichero. Adjúntalo en el campo «extracto».');
+
+  const formato = formatoDe(fichero.name);
+  if (!formato) {
+    return error(
+      415,
+      `No sé leer «${fichero.name}».`,
+      'Acepto PDF, Excel (.xlsx, .xls) y CSV. Si tu banco ofrece Excel o CSV, ' +
+        'usa ése: los números vienen exactos y no hay que interpretarlos.',
+    );
+  }
+  // La clave de IA sólo hace falta para el PDF. Un CSV o un Excel se leen con
+  // código, así que exigirla aquí bloquearía subidas que no la necesitan.
+  if (formato === 'pdf' && !hayClaveIA()) {
+    return error(
+      503,
+      'No hay ANTHROPIC_API_KEY configurada, así que no puedo leer un PDF.',
+      'Añádela en Vercel y vuelve a desplegar — o descarga el extracto en Excel ' +
+        'o CSV desde tu banco, que no necesita clave.',
+    );
+  }
 
   const mb = fichero.size / (1024 * 1024);
   if (mb > MAX_MB) {
@@ -71,14 +87,13 @@ export async function POST(req: Request) {
       'Súbelo partido por meses.',
     );
   }
-  if (fichero.type && fichero.type !== 'application/pdf') {
-    return error(415, `«${fichero.name}» no es un PDF.`, 'ORis sólo lee extractos en PDF.');
-  }
-
-  const pdf = new Uint8Array(await fichero.arrayBuffer());
+  const datos = new Uint8Array(await fichero.arrayBuffer());
 
   try {
-    const extraido = await extraer(pdf, fichero.name);
+    const extraido =
+      formato === 'pdf'
+        ? await extraer(datos, fichero.name)
+        : await leerTabular(datos, formato);
     const veredicto = validar(extraido);
 
     // El veredicto manda. Si no cuadra, se devuelve el porqué con su evidencia
@@ -128,7 +143,7 @@ export async function POST(req: Request) {
       })),
     };
 
-    const resultado = await ingerir(paraIngesta, pdf, USUARIO);
+    const resultado = await ingerir(paraIngesta, datos, USUARIO);
 
     if (resultado.estado === 'rechazado') {
       return NextResponse.json({ estado: 'rechazado', mensaje: resultado.motivo }, { status: 422 });
@@ -143,12 +158,18 @@ export async function POST(req: Request) {
       categorizados: categorias.categorizados,
       sinCategorizar: categorias.sinCategorizar,
       hallazgos: veredicto.hallazgos,
-      modelo: MODELO,
-      hash: hashDocumento(pdf),
+      formato,
+      // Un tabular no pasa por el modelo, y decirlo importa: nadie tuvo que
+      // interpretar esas cifras.
+      modelo: formato === 'pdf' ? MODELO : null,
+      hash: hashDocumento(datos),
     });
   } catch (e) {
     if (e instanceof ErrorExtraccion) {
       return error(502, e.message, e.sugerencia);
+    }
+    if (e instanceof ErrorTabular) {
+      return error(422, e.message, e.sugerencia);
     }
     // Lo inesperado se registra entero en el servidor y sale resumido: el
     // mensaje de un error de driver puede llevar dentro la cadena de conexión.

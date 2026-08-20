@@ -19,6 +19,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { ACEPTADOS } from '@/lib/oris/formatos';
+
 interface Hallazgo {
   regla: string;
   severidad: string;
@@ -117,7 +119,11 @@ export function SubidaExtracto() {
           Leyendo <span className="text-white/70">{subiendo}</span>… {segundos}s
           <br />
           <span className="text-white/30">
-            Un extracto de varias páginas tarda un par de minutos. No cierres la pestaña.
+            {/* Un tabular tarda milisegundos; un PDF, minutos. Decirlo evita
+                que parezca colgado justo cuando está trabajando. */}
+            {/\.pdf$/i.test(subiendo)
+              ? 'Un PDF de varias páginas tarda un par de minutos. No cierres la pestaña.'
+              : 'Esto es rápido: las cifras ya vienen separadas.'}
           </span>
         </p>
       ) : null}
@@ -125,7 +131,7 @@ export function SubidaExtracto() {
       <input
         ref={entrada}
         type="file"
-        accept="application/pdf,.pdf"
+        accept={ACEPTADOS}
         className="sr-only"
         onChange={(e) => {
           const f = e.target.files?.[0];
@@ -142,7 +148,7 @@ export function SubidaExtracto() {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
           <path d="M12 5v14M5 12h14" strokeLinecap="round" />
         </svg>
-        {subiendo ? 'Leyendo el extracto…' : 'Adjuntar un extracto en PDF'}
+        {subiendo ? 'Leyendo el extracto…' : 'Adjuntar extracto (PDF, Excel o CSV)'}
       </button>
     </div>
   );
