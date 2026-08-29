@@ -65,6 +65,20 @@ export interface ExtraccionJSON {
   }>;
 }
 
+/**
+ * Un fallo de la propia ingesta, no del driver.
+ *
+ * Se distingue para poder enseñar su mensaje: el de un error de Postgres puede
+ * llevar dentro la cadena de conexión, y ése no sale de los registros del
+ * servidor. Éstos los escribimos nosotros y dicen exactamente qué pasó.
+ */
+export class ErrorIngesta extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ErrorIngesta';
+  }
+}
+
 export type ResultadoIngesta =
   | {
       estado: 'guardado';
@@ -263,8 +277,14 @@ export async function ingerir(
       .from(movimientos)
       .where(eq(movimientos.extractoId, extracto.id));
 
-    if (solapados === 0) {
-      // Sin solape se puede hacer la comprobación fuerte: recalcular el cuadre
+    // La comprobación fuerte necesita los dos saldos. Sin ellos, la suma en SQL
+    // da NULL —que no es ni verdadero ni falso— y tomarlo por «no cuadra»
+    // abortaba la transacción de cualquier extracto que no declarase saldos:
+    // justo los CSV y los Excel que la validación acababa de aceptar.
+    const haySaldos = extraccion.saldo_inicial !== null && extraccion.saldo_final !== null;
+
+    if (solapados === 0 && haySaldos) {
+      // Con saldos y sin solape se puede hacer la comprobación fuerte: recalcular el cuadre
       // del periodo entero contra los saldos que declara el extracto. Es la que
       // detecta que alguien haya dicho «cuadra» sin que cuadre.
       const [{ cuadraEnBase }] = await tx
@@ -280,7 +300,7 @@ export async function ingerir(
       if (!cuadraEnBase) {
         // Lanzar deshace la transacción entera: el extracto y sus movimientos
         // desaparecen como si nunca hubieran existido.
-        throw new Error(
+        throw new ErrorIngesta(
           `El cuadre no sobrevivió al guardado: ${comprobacion.n} movimientos ` +
             `suman ${comprobacion.suma}, que no lleva de ${extraccion.saldo_inicial} ` +
             `a ${extraccion.saldo_final}.`,
@@ -305,7 +325,7 @@ export async function ingerir(
         .where(eq(extractos.id, extracto.id));
 
       if (!igual || comprobacion.n !== nuevos.length) {
-        throw new Error(
+        throw new ErrorIngesta(
           `Lo guardado no coincide con lo auditado: ${comprobacion.n} movimientos ` +
             `suman ${comprobacion.suma}, y esperaba ${nuevos.length} sumando ${esperada}.`,
         );

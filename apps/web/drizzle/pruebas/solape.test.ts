@@ -183,6 +183,32 @@ async function main() {
     .where(sql`${extractos.usuarioId} = ${USUARIO}`);
   comprobar(tras === 3, 'y no quedan extractos vacíos en la lista', tras);
 
+  // --- 6. Un extracto sin saldos declarados (un CSV o un Excel) ------------
+  //     La comprobación posterior al guardado compara los saldos en SQL. Con
+  //     NULL esa comparación da NULL —ni verdadero ni falso—, y tomarlo por
+  //     «no cuadra» abortaba la transacción de todos los tabulares.
+  const sinSaldos: ExtraccionJSON = {
+    documento: 'sin-saldos.csv',
+    banco: null,
+    iban: null,
+    periodo_inicio: '2026-01-08',
+    periodo_fin: '2026-01-09',
+    saldo_inicial: null,
+    saldo_final: null,
+    cuadra: true,
+    movimientos: [
+      mov('2026-01-08', 'COMPRA SIN SALDO UNO', '-11.11', 0),
+      mov('2026-01-09', 'COMPRA SIN SALDO DOS', '-22.22', 1),
+    ],
+    hallazgos: [],
+  };
+  const r7 = await ingerir(sinSaldos, pdfFalso('f'), USUARIO);
+  comprobar(
+    r7.estado === 'guardado' && r7.movimientos === 2,
+    'un extracto sin saldos declarados se guarda',
+    r7,
+  );
+
   await cliente.delete(movimientos).where(sql`${movimientos.usuarioId} = ${USUARIO}`);
   await cliente.delete(extractos).where(sql`${extractos.usuarioId} = ${USUARIO}`);
   await cliente.delete(categorias).where(sql`${categorias.usuarioId} = ${USUARIO}`);

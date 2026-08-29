@@ -22,7 +22,7 @@
 import { NextResponse } from 'next/server';
 
 import { hayBaseDeDatos } from '@/lib/db';
-import { hashDocumento, ingerir, type ExtraccionJSON } from '@/lib/db/ingesta';
+import { ErrorIngesta, hashDocumento, ingerir, type ExtraccionJSON } from '@/lib/db/ingesta';
 import { categorizar } from '@/lib/oris/categorizar';
 import { ErrorExtraccion, MODELO, extraer, hayClaveIA } from '@/lib/oris/extraccion';
 import { formatoDe, leerTabular } from '@/lib/oris/formatos';
@@ -177,6 +177,16 @@ export async function POST(req: Request) {
     }
     if (e instanceof ErrorTabular) {
       return error(422, e.message, e.sugerencia);
+    }
+    // Los fallos de la propia ingesta sí se enseñan: los escribimos nosotros y
+    // dicen qué pasó. Lo que se sigue ocultando es el error crudo de un driver,
+    // que puede llevar dentro la cadena de conexión.
+    if (e instanceof ErrorIngesta) {
+      return error(
+        422,
+        e.message,
+        'No se ha guardado nada: la transacción se deshizo entera.',
+      );
     }
     // Lo inesperado se registra entero en el servidor y sale resumido: el
     // mensaje de un error de driver puede llevar dentro la cadena de conexión.
