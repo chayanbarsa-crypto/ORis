@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useIres } from '@/lib/ires/context';
 import { ACEPTADOS } from '@/lib/oris/formatos';
 
 interface Hallazgo {
@@ -48,11 +49,19 @@ type Resultado =
 
 export function SubidaExtracto() {
   const router = useRouter();
+  const { setState } = useIres();
   const entrada = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState<string | null>(null);
   const [segundos, setSegundos] = useState(0);
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [encima, setEncima] = useState(false);
+  const reposo = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Si el componente desaparece con el temporizador en marcha, ORis se
+  // quedaría para siempre en «success» o en «alert».
+  useEffect(() => () => {
+    if (reposo.current) clearTimeout(reposo.current);
+  }, []);
 
   useEffect(() => {
     if (!subiendo) return;
@@ -65,6 +74,10 @@ export function SubidaExtracto() {
       setResultado(null);
       setSegundos(0);
       setSubiendo(fichero.name);
+      // El fondo lo cuenta antes que ningún texto: en «analyzing» el campo
+      // estelar acelera y aparecen las ondas. La máquina de estados de IRES ya
+      // existía para esto y no se estaba usando para nada.
+      setState('analyzing');
 
       const cuerpo = new FormData();
       cuerpo.append('extracto', fichero);
@@ -88,7 +101,16 @@ export function SubidaExtracto() {
           // vuelva a calcular: sin esto los movimientos nuevos no aparecen
           // hasta recargar a mano.
           router.refresh();
+          // Un destello verde y de vuelta a la calma. Los 1.400 ms son lo que
+          // tarda en leerse la frase de respuesta: si volviera antes, el
+          // cambio de color se perdería justo cuando dice que salió bien.
+          setState('success');
+          reposo.current = setTimeout(() => setState('idle'), 1400);
         } else if (datos.estado === 'rechazado') {
+          // «alert» tiñe la interfaz de ámbar mientras lees el motivo. No es
+          // un error de la aplicación: es ORis diciendo que faltan apuntes.
+          setState('alert');
+          reposo.current = setTimeout(() => setState('idle'), 2600);
           setResultado({
             tipo: 'rechazado',
             mensaje: datos.mensaje ?? 'El extracto no cuadra.',
@@ -96,6 +118,8 @@ export function SubidaExtracto() {
             sugerencia: datos.sugerencia ?? '',
           });
         } else {
+          setState('alert');
+          reposo.current = setTimeout(() => setState('idle'), 2600);
           setResultado({
             tipo: 'error',
             mensaje: datos.mensaje ?? `El servidor respondió ${res.status}.`,
@@ -103,6 +127,8 @@ export function SubidaExtracto() {
           });
         }
       } catch {
+        setState('alert');
+        reposo.current = setTimeout(() => setState('idle'), 2600);
         setResultado({
           tipo: 'error',
           mensaje: 'Se cortó la conexión antes de terminar.',
@@ -113,7 +139,7 @@ export function SubidaExtracto() {
         if (entrada.current) entrada.current.value = '';
       }
     },
-    [router],
+    [router, setState],
   );
 
   return (

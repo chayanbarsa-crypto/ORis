@@ -12,7 +12,7 @@ export interface HomeClientProps {
 }
 
 export function HomeClient({ movimientos, motivoVacio }: HomeClientProps) {
-  const { state } = useIres();
+  const { desbloqueado } = useIres();
 
   return (
     <main className="relative h-dvh w-screen overflow-hidden">
@@ -20,7 +20,10 @@ export function HomeClient({ movimientos, motivoVacio }: HomeClientProps) {
           reaccionando al estado de IRES en toda la aplicacion. */}
       <StarField />
 
-      {state === 'idle' && <AppShell movimientos={movimientos} motivoVacio={motivoVacio} />}
+      {/* El panel se enseña cuando la puerta está abierta, no cuando ORis
+          está en reposo. Eran la misma condición, y por eso ponerse a analizar
+          un extracto te devolvía a la constelación. */}
+      {desbloqueado && <AppShell movimientos={movimientos} motivoVacio={motivoVacio} />}
       <UnlockScreen />
     </main>
   );

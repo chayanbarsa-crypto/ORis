@@ -21,7 +21,7 @@ const AWAKEN_MS = 1800;
 const SUCCESS_HOLD_MS = 900;
 
 export function UnlockScreen() {
-  const { state, setState, theme } = useIres();
+  const { state, setState, theme, desbloqueado, abrir } = useIres();
   const reduced = useReducedMotion();
   const [awaken, setAwaken] = useState(0);
   const [fails, setFails] = useState(0);
@@ -42,7 +42,10 @@ export function UnlockScreen() {
       // Sin movimiento: se salta la coreografia, no el flujo de estados.
       setAwaken(1);
       setState('success');
-      timerRef.current = setTimeout(() => setState('idle'), 300);
+      timerRef.current = setTimeout(() => {
+        abrir();
+        setState('idle');
+      }, 300);
       return;
     }
 
@@ -56,11 +59,14 @@ export function UnlockScreen() {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setState('success');
-        timerRef.current = setTimeout(() => setState('idle'), SUCCESS_HOLD_MS);
+        timerRef.current = setTimeout(() => {
+          abrir();
+          setState('idle');
+        }, SUCCESS_HOLD_MS);
       }
     };
     rafRef.current = requestAnimationFrame(tick);
-  }, [reduced, setState]);
+  }, [reduced, setState, abrir]);
 
   useEffect(() => {
     return () => {
@@ -74,7 +80,10 @@ export function UnlockScreen() {
 
   return (
     <AnimatePresence>
-      {state !== 'idle' && (
+      {/* Se cierra cuando la puerta se abre, no cuando el estado llega a
+          «idle»: si dependiera del estado, volvería a aparecer en cuanto ORis
+          se pusiera a analizar algo. */}
+      {!desbloqueado && (
         <motion.div
           key="unlock"
           className="absolute inset-0 z-20 flex flex-col items-center justify-center"
