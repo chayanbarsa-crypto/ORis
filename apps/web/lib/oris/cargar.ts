@@ -10,10 +10,10 @@
  * uno vacío — parece que funciona, y el fallo se descubre mucho más tarde.
  */
 
-import { desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 
 import { db, hayBaseDeDatos } from '@/lib/db';
-import { movimientos as tablaMovimientos } from '@/lib/db/schema';
+import { extractos as tablaExtractos, movimientos as tablaMovimientos } from '@/lib/db/schema';
 import type { MovimientoVista } from './agregados';
 
 export interface CargaMovimientos {
@@ -116,4 +116,56 @@ function explicar(e: unknown): string {
 
   const pista = pistas[codigo];
   return pista ? `${pista} (Postgres ${codigo}: ${detalle})` : detalle;
+}
+
+export interface ExtractoVista {
+  id: string;
+  nombreFichero: string;
+  banco: string | null;
+  periodoInicio: string | null;
+  periodoFin: string | null;
+  movimientos: number;
+  subidoEn: string;
+  motor: string | null;
+}
+
+/**
+ * Los extractos subidos, del más reciente al más antiguo.
+ *
+ * El conteo de movimientos va por `join` y `group by`, no por subconsulta
+ * correlada: una subconsulta anidada dentro del `select` de Drizzle no se
+ * correlaciona con el `from` de fuera y devuelve cero **sin dar ningún error**.
+ * Ya pasó una vez en este proyecto y no hubo forma de verlo hasta comparar con
+ * la base de datos a mano.
+ */
+export async function cargarExtractos(limite = 50): Promise<ExtractoVista[]> {
+  if (!hayBaseDeDatos) return [];
+
+  try {
+    const filas = await db()
+      .select({
+        id: tablaExtractos.id,
+        nombreFichero: tablaExtractos.nombreFichero,
+        banco: tablaExtractos.banco,
+        periodoInicio: tablaExtractos.periodoInicio,
+        periodoFin: tablaExtractos.periodoFin,
+        subidoEn: tablaExtractos.subidoEn,
+        motor: tablaExtractos.motor,
+        movimientos: sql<number>`count(${tablaMovimientos.id})::int`,
+      })
+      .from(tablaExtractos)
+      .leftJoin(tablaMovimientos, eq(tablaMovimientos.extractoId, tablaExtractos.id))
+      .groupBy(tablaExtractos.id)
+      .orderBy(desc(tablaExtractos.subidoEn))
+      .limit(limite);
+
+    return filas.map((f) => ({
+      ...f,
+      subidoEn: f.subidoEn instanceof Date ? f.subidoEn.toISOString() : String(f.subidoEn),
+    }));
+  } catch {
+    // La lista de extractos es contexto, no el dato principal: si falla, el
+    // panel sigue funcionando sin ella en vez de caerse entero.
+    return [];
+  }
 }

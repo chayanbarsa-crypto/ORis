@@ -240,6 +240,8 @@ export function mapearColumnas(filas: readonly Fila[]): Mapeo {
 export function filasAMovimientos(filas: readonly Fila[]): {
   movimientos: MovimientoExtraido[];
   descartadas: number;
+  /** Lo que hay antes de la cabecera: donde el banco suele firmar. */
+  preambulo: string[];
 } {
   const mapa = mapearColumnas(filas);
   const movimientos: MovimientoExtraido[] = [];
@@ -322,7 +324,12 @@ export function filasAMovimientos(filas: readonly Fila[]): {
     throw new ErrorTabular('La tabla no trae ningún movimiento legible.');
   }
 
-  return { movimientos, descartadas };
+  const preambulo = filas
+    .slice(0, mapa.filaCabecera)
+    .map((f) => f.map(texto).filter(Boolean).join(' '))
+    .filter(Boolean);
+
+  return { movimientos, descartadas, preambulo };
 }
 
 /**

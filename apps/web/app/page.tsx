@@ -7,7 +7,7 @@
  * cliente reciba sólo lo que tiene que pintar.
  */
 
-import { cargarMovimientos } from '@/lib/oris/cargar';
+import { cargarExtractos, cargarMovimientos } from '@/lib/oris/cargar';
 import { HomeClient } from './HomeClient';
 
 /**
@@ -22,6 +22,13 @@ import { HomeClient } from './HomeClient';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const { movimientos, motivo } = await cargarMovimientos();
-  return <HomeClient movimientos={movimientos} motivoVacio={motivo ?? undefined} />;
+  // En paralelo: son dos consultas independientes y encadenarlas sumaría sus
+  // latencias por nada.
+  const [{ movimientos, motivo }, extractos] = await Promise.all([
+    cargarMovimientos(),
+    cargarExtractos(),
+  ]);
+  return (
+    <HomeClient movimientos={movimientos} extractos={extractos} motivoVacio={motivo ?? undefined} />
+  );
 }

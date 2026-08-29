@@ -13,24 +13,34 @@
  * los hay.
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 
 import { ChatPanel } from '@/components/chat/ChatPanel';
+import { Extractos } from '@/components/panel/Extractos';
+import { Revision } from '@/components/panel/Revision';
 import { FinanceSidebar } from '@/components/finance/FinanceSidebar';
 import { PanelPrincipal } from '@/components/panel/PanelPrincipal';
 import { ListaMovimientos } from '@/components/panel/ListaMovimientos';
 import type { MovimientoVista } from '@/lib/oris/agregados';
+import type { ExtractoVista } from '@/lib/oris/cargar';
+import { agruparPendientes } from '@/lib/oris/revision';
 import { IresEye } from './IresEye';
 import { StatusBadge } from './StatusBadge';
 
 export interface AppShellProps {
   movimientos?: readonly MovimientoVista[];
+  extractos?: readonly ExtractoVista[];
   motivoVacio?: string;
 }
 
-export function AppShell({ movimientos = [], motivoVacio }: AppShellProps) {
+export function AppShell({ movimientos = [], extractos = [], motivoVacio }: AppShellProps) {
   const [seccion, setSeccion] = useState('panel');
+
+  // Se cuenta aquí y no en cada sección: la campana del menú y la lista de
+  // revisión tienen que decir el mismo número, y la única forma de que no se
+  // separen nunca es que salgan del mismo cálculo.
+  const pendientes = useMemo(() => agruparPendientes(movimientos).length, [movimientos]);
 
   return (
     <motion.div
@@ -55,9 +65,13 @@ export function AppShell({ movimientos = [], motivoVacio }: AppShellProps) {
         herramienta financiera se lee, no se contempla.
       */}
       <div className="flex min-h-0 flex-1 flex-col bg-[#060C1C]/72 backdrop-blur-2xl md:flex-row">
-        <FinanceSidebar seccion={seccion} onSeccion={setSeccion} />
+        <FinanceSidebar seccion={seccion} onSeccion={setSeccion} pendientes={pendientes} />
 
-        {seccion === 'movimientos' ? (
+        {seccion === 'extractos' ? (
+          <Extractos extractos={extractos} />
+        ) : seccion === 'categorias' ? (
+          <Revision movimientos={movimientos} />
+        ) : seccion === 'movimientos' ? (
           <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
             <h2 className="mb-4 text-sm font-light tracking-wide text-white/70">
               Todos los movimientos

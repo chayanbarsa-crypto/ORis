@@ -14,6 +14,7 @@
  * «oficial».
  */
 
+import { detectarBanco } from './bancos';
 import { aCentimos, type Centimos } from './dinero';
 import { leerExcel } from './excel';
 import { ErrorTabular, filasAMovimientos, leerCSV } from './tabular';
@@ -57,6 +58,7 @@ export function formatoDe(nombre: string): Formato | null {
 export async function leerTabular(
   datos: Uint8Array,
   formato: Exclude<Formato, 'pdf'>,
+  nombreFichero = '',
 ): Promise<Extraccion> {
   const filas =
     formato === 'excel'
@@ -65,7 +67,7 @@ export async function leerTabular(
 
   if (filas.length === 0) throw new ErrorTabular('El fichero está vacío.');
 
-  const { movimientos } = filasAMovimientos(filas);
+  const { movimientos, preambulo } = filasAMovimientos(filas);
 
   const conSaldo = movimientos.filter((m) => m.saldo !== null);
   let saldoInicial: string | null = null;
@@ -87,7 +89,9 @@ export async function leerTabular(
   const fechas = movimientos.map((m) => m.fecha).sort();
 
   return {
-    banco: null,
+    // El banco no viene en un campo: se reconoce en lo que el fichero sí trae
+    // —lo que el banco firma antes de la tabla— y en el nombre del fichero.
+    banco: detectarBanco(preambulo, nombreFichero),
     iban: null,
     periodo_inicio: fechas[0] ?? null,
     periodo_fin: fechas[fechas.length - 1] ?? null,

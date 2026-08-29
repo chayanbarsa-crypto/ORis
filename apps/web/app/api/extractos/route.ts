@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     const extraido =
       formato === 'pdf'
         ? await extraer(datos, fichero.name)
-        : await leerTabular(datos, formato);
+        : await leerTabular(datos, formato, fichero.name);
     // La fuente decide qué se exige. Un PDF lo leyó un modelo y puede haberse
     // saltado apuntes; un Excel lo leyó el código fila a fila y no puede.
     const veredicto = validar(extraido, formato === 'pdf' ? 'modelo' : 'tabla');

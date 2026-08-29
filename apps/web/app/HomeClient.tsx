@@ -5,13 +5,15 @@ import { UnlockScreen } from '@/components/unlock/UnlockScreen';
 import { AppShell } from '@/components/ui/AppShell';
 import { useIres } from '@/lib/ires/context';
 import type { MovimientoVista } from '@/lib/oris/agregados';
+import type { ExtractoVista } from '@/lib/oris/cargar';
 
 export interface HomeClientProps {
   movimientos: readonly MovimientoVista[];
+  extractos: readonly ExtractoVista[];
   motivoVacio?: string;
 }
 
-export function HomeClient({ movimientos, motivoVacio }: HomeClientProps) {
+export function HomeClient({ movimientos, extractos, motivoVacio }: HomeClientProps) {
   const { desbloqueado } = useIres();
 
   return (
@@ -23,7 +25,7 @@ export function HomeClient({ movimientos, motivoVacio }: HomeClientProps) {
       {/* El panel se enseña cuando la puerta está abierta, no cuando ORis
           está en reposo. Eran la misma condición, y por eso ponerse a analizar
           un extracto te devolvía a la constelación. */}
-      {desbloqueado && <AppShell movimientos={movimientos} motivoVacio={motivoVacio} />}
+      {desbloqueado && <AppShell movimientos={movimientos} extractos={extractos} motivoVacio={motivoVacio} />}
       <UnlockScreen />
     </main>
   );
