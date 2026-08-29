@@ -180,6 +180,21 @@ comprobar(fechaCanonica('mayo') === null, 'texto no es fecha');
   comprobar(saltó, 'dinero sin fecha y sin etiqueta de total se reporta, no se traga');
 }
 
+{
+  // Muchos bancos exportan el movimiento más reciente primero. Sin invertirlo,
+  // la cadena de saldos se rompe en cada paso y el orden cronológico salta en
+  // todas las filas — un extracto perfecto pareciendo un desastre.
+  const filas: Fila[] = [
+    ['Fecha', 'Concepto', 'Importe', 'Saldo'],
+    ['03/05/2026', 'TERCERO', '-30,00', '40,00'],
+    ['02/05/2026', 'SEGUNDO', '-20,00', '70,00'],
+    ['01/05/2026', 'PRIMERO', '-10,00', '90,00'],
+  ];
+  const { movimientos } = filasAMovimientos(filas);
+  comprobar(movimientos[0].concepto === 'PRIMERO', 'un fichero al revés se endereza', movimientos[0].concepto);
+  comprobar(movimientos[2].concepto === 'TERCERO', 'y el último queda el último');
+}
+
 // --- CSV -------------------------------------------------------------------
 
 {

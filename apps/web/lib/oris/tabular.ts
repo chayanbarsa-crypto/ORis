@@ -302,6 +302,15 @@ export function filasAMovimientos(filas: readonly Fila[]): {
     });
   }
 
+  // Muchos bancos exportan el más reciente primero. Nada de lo que viene
+  // después funciona con ese orden: la cadena de saldos se rompe en cada paso y
+  // el orden cronológico salta en todas las filas. Se detecta comparando la
+  // primera fecha con la última — no fila a fila, porque dentro de un mismo día
+  // el orden es arbitrario y unas cuantas inversiones locales son normales.
+  if (movimientos.length > 1 && movimientos[0].fecha > movimientos[movimientos.length - 1].fecha) {
+    movimientos.reverse();
+  }
+
   if (problemas.length > 0) {
     throw new ErrorTabular(
       `No pude leer ${problemas.length} fila(s) con datos: ${problemas.slice(0, 3).join('; ')}.`,

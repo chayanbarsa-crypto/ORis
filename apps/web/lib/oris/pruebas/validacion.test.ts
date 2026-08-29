@@ -238,5 +238,71 @@ comprobar(!ibanValido('1S9121000418450200051332'), 'país que no son dos letras 
   comprobar(v.cuadra, 'pero no impide guardar: el dinero es correcto aunque el IBAN se leyera mal');
 }
 
+
+// --- la fuente decide qué se exige ----------------------------------------
+
+{
+  // Un Excel sin columna de saldo: el código lo leyó fila a fila, así que no
+  // puede faltar ninguna. Rechazarlo sería aplicar a un lector determinista una
+  // salvaguarda pensada para uno que no lo es.
+  const e = extraccion({
+    saldo_inicial: null,
+    saldo_final: null,
+    movimientos: [m({ importe: '-10.00' }), m({ importe: '-20.00' })],
+  });
+  comprobar(validar(e, 'tabla').cuadra, 'un tabular sin saldos se guarda igual');
+  comprobar(validar(e, 'tabla').bloqueantes.length === 0, 'y nada bloquea');
+  comprobar(!validar(e, 'modelo').cuadra, 'pero el mismo dato de un PDF, no');
+}
+
+{
+  // Lo que sí sigue bloqueando en un tabular: que falten importes legibles.
+  const e = extraccion({
+    saldo_inicial: null,
+    saldo_final: null,
+    movimientos: [m({ importe: 'no es un importe', concepto: 'RARO' })],
+  });
+  comprobar(!validar(e, 'tabla').cuadra, 'un importe ilegible bloquea venga de donde venga');
+}
+
+{
+  // Cadena parcial: sólo se comparan pares consecutivos que traigan los dos su
+  // saldo. Un hueco en medio no es una ruptura.
+  const v = validar(
+    extraccion({
+      saldo_inicial: '100.00',
+      saldo_final: '40.00',
+      movimientos: [
+        m({ importe: '-10.00', saldo: '90.00', concepto: 'UNO' }),
+        m({ importe: '-20.00', saldo: null, concepto: 'DOS' }),
+        m({ importe: '-30.00', saldo: '40.00', concepto: 'TRES' }),
+      ],
+    }),
+  );
+  comprobar(
+    !v.hallazgos.some((h) => h.regla === 'Continuidad del saldo'),
+    'un apunte sin saldo en medio no se reporta como ruptura',
+    v.hallazgos.map((h) => h.regla),
+  );
+}
+
+{
+  // Pero dos consecutivos con saldo que no encajan, sí.
+  const v = validar(
+    extraccion({
+      saldo_inicial: '100.00',
+      saldo_final: '65.00',
+      movimientos: [
+        m({ importe: '-10.00', saldo: '90.00', concepto: 'UNO' }),
+        m({ importe: '-25.00', saldo: '60.00', concepto: 'DOS' }),
+      ],
+    }),
+  );
+  comprobar(
+    v.hallazgos.some((h) => h.regla === 'Continuidad del saldo'),
+    'dos consecutivos con saldo que no encajan sí se reportan',
+  );
+}
+
 console.log(fallos === 0 ? '\n✅ validación: todo en verde' : `\n❌ ${fallos} fallo(s)`);
 process.exit(fallos === 0 ? 0 : 1);

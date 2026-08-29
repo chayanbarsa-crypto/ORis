@@ -82,7 +82,25 @@ export interface Veredicto {
   suma: Centimos;
 }
 
-export function validar(e: Extraccion): Veredicto {
+/**
+ * De dónde viene lo que se está validando. Cambia qué se exige, y no por
+ * capricho: cambia **qué puede salir mal**.
+ *
+ * - `modelo`: lo leyó un modelo de un PDF. Puede saltarse apuntes sin avisar y
+ *   devolver una respuesta impecable, así que hace falta una prueba
+ *   independiente de que no falta ninguno — el cuadre, o la cadena de saldos.
+ *   Sin ninguna de las dos, no se guarda.
+ *
+ * - `tabla`: lo leyó el código de un CSV o un Excel, fila a fila. No hay
+ *   posibilidad de que se salte una en silencio: una fila ilegible aborta la
+ *   lectura entera y lo dice. Aquí el cuadre es una comprobación extra cuando
+ *   los datos la permiten, no un requisito — exigirlo sería aplicar a un lector
+ *   determinista una salvaguarda diseñada para uno que no lo es, y rechazar
+ *   ficheros perfectamente completos porque el banco no imprimió una columna.
+ */
+export type Fuente = 'modelo' | 'tabla';
+
+export function validar(e: Extraccion, fuente: Fuente = 'modelo'): Veredicto {
   const hallazgos: Hallazgo[] = [];
   const importes = e.movimientos.map((m) => aCentimos(m.importe));
   const suma = importes.reduce<Centimos>((acc, c) => acc + (c ?? 0), 0);
@@ -119,6 +137,25 @@ export function validar(e: Extraccion): Veredicto {
           `Cada apunte deja el saldo que el siguiente toma como punto de ` +
           `partida, de ${formatear(cadena.primero!)} a ${formatear(cadena.ultimo!)}.`,
         sugerencia: '',
+      });
+    } else if (fuente === 'tabla') {
+      // El fichero se leyó fila a fila: no falta ninguna. Que el banco no
+      // imprimiera los saldos del periodo no es motivo para rechazarlo.
+      cuadra = true;
+      hallazgos.push({
+        regla: 'Cuadre de saldos',
+        pagina: 1,
+        severidad: 'Informativa',
+        estado: 'No evaluable',
+        descripcion:
+          `El fichero no trae los saldos del periodo, así que no hay cuadre que ` +
+          `comprobar. Se guardan los ${e.movimientos.length} movimientos igual.`,
+        evidencia:
+          'Viene de un CSV o un Excel, leído fila a fila: no puede faltar ninguno ' +
+          'sin que la lectura hubiera fallado antes.',
+        sugerencia:
+          'Si tu banco ofrece una columna de saldo en la descarga, inclúyela y ' +
+          'podré verificar además que la cadena no se rompe.',
       });
     } else {
       const h: Hallazgo = {
@@ -212,15 +249,24 @@ export function validar(e: Extraccion): Veredicto {
   //     Dice *dónde* se rompe la cadena, no sólo que se rompe. Con 92
   //     movimientos, saber el punto exacto es la diferencia entre revisar una
   //     línea del PDF y revisarlo entero.
-  const conSaldo = e.movimientos
-    .map((m) => ({ m, saldo: aCentimos(m.saldo), importe: aCentimos(m.importe) }))
-    .filter((x) => x.saldo !== null && x.importe !== null);
+  // Se comparan pares CONSECUTIVOS en el extracto que traigan los dos su saldo,
+  // no la lista filtrada. Filtrar primero y encadenar después inventaría una
+  // relación entre dos apuntes que en el extracto no van seguidos: si el de en
+  // medio no trae saldo, el salto que aparece es real y esperado, y reportarlo
+  // sería una alarma falsa en cada hueco.
+  const pasos = e.movimientos.map((m) => ({
+    m,
+    saldo: aCentimos(m.saldo),
+    importe: aCentimos(m.importe),
+  }));
 
-  const saltos: (typeof conSaldo)[number][][] = [];
-  for (let i = 1; i < conSaldo.length; i++) {
-    const a = conSaldo[i - 1];
-    const b = conSaldo[i];
-    if (a.saldo! + b.importe! !== b.saldo!) saltos.push([a, b]);
+  type Paso = (typeof pasos)[number];
+  const saltos: [Paso, Paso][] = [];
+  for (let i = 1; i < pasos.length; i++) {
+    const a = pasos[i - 1];
+    const b = pasos[i];
+    if (a.saldo === null || b.saldo === null || b.importe === null) continue;
+    if (a.saldo + b.importe !== b.saldo) saltos.push([a, b]);
   }
   if (saltos.length > 0) {
     const [a, b] = saltos[0];
