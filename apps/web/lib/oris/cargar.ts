@@ -13,7 +13,11 @@
 import { desc, eq, sql } from 'drizzle-orm';
 
 import { db, hayBaseDeDatos } from '@/lib/db';
-import { extractos as tablaExtractos, movimientos as tablaMovimientos } from '@/lib/db/schema';
+import {
+  categorias as tablaCategorias,
+  extractos as tablaExtractos,
+  movimientos as tablaMovimientos,
+} from '@/lib/db/schema';
 import type { MovimientoVista } from './agregados';
 
 export interface CargaMovimientos {
@@ -39,10 +43,15 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
         fecha: tablaMovimientos.fecha,
         concepto: tablaMovimientos.concepto,
         importe: tablaMovimientos.importe,
-        categoria: tablaMovimientos.categoriaId,
+        categoria: tablaCategorias.nombre,
         origen: tablaMovimientos.origen,
       })
       .from(tablaMovimientos)
+      // `leftJoin` y no `innerJoin`: un movimiento sin categorizar tiene que
+      // seguir apareciendo. Con un join interior desaparecerían justo los que
+      // hay que revisar, y los totales cuadrarían con un extracto que ya no es
+      // el que subió el usuario.
+      .leftJoin(tablaCategorias, eq(tablaCategorias.id, tablaMovimientos.categoriaId))
       .orderBy(desc(tablaMovimientos.fecha), desc(tablaMovimientos.posicion))
       .limit(limite);
 
@@ -52,10 +61,7 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
         fecha: f.fecha,
         concepto: f.concepto,
         importe: f.importe,
-        // `categoriaId` es una referencia; el nombre se resolverá con un join
-        // cuando exista el editor de categorías. Hasta entonces no se enseña un
-        // UUID haciéndose pasar por el nombre de una categoría.
-        categoria: null,
+        categoria: f.categoria,
         origen: f.origen,
       })),
       motivo: null,

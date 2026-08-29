@@ -24,8 +24,13 @@ import {
   type MovimientoVista,
 } from '@/lib/oris/agregados';
 import { DesgloseGasto } from './DesgloseGasto';
+import { DetalleKpi, type TipoKpi } from './DetalleKpi';
 import { Kpi } from './Kpi';
+import { LineaTiempo } from './LineaTiempo';
 import { ListaMovimientos } from './ListaMovimientos';
+
+/** `id` fijo del panel de detalle, para que `aria-controls` apunte a algo real. */
+const ID_DETALLE = 'detalle-kpi';
 
 export interface PanelPrincipalProps {
   movimientos: readonly MovimientoVista[];
@@ -36,7 +41,17 @@ export interface PanelPrincipalProps {
 export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps) {
   const meses = useMemo(() => mesesDisponibles(movimientos), [movimientos]);
   const [mes, setMes] = useState<string | null>(null);
+  const [abierto, setAbierto] = useState<TipoKpi | null>(null);
   const mesActivo = mes ?? meses[0] ?? null;
+
+  // Cambiar de mes cierra el detalle: si se quedara abierto, enseñaría las
+  // cifras del mes nuevo bajo la tarjeta que se pulsó en el viejo, y no hay
+  // forma de que el usuario note el cambio.
+  const cambiarMes = (m: string) => {
+    setMes(m);
+    setAbierto(null);
+  };
+  const alternar = (t: TipoKpi) => setAbierto((previo) => (previo === t ? null : t));
 
   const delMes = useMemo(
     () => (mesActivo ? movimientos.filter((m) => m.fecha.startsWith(mesActivo)) : []),
@@ -77,7 +92,7 @@ export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps
           <button
             key={m}
             type="button"
-            onClick={() => setMes(m)}
+            onClick={() => cambiarMes(m)}
             aria-pressed={m === mesActivo}
             className={`rounded-full px-3 py-1 text-[0.7rem] tabular-nums transition-colors ${
               m === mesActivo
@@ -90,23 +105,62 @@ export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps
         ))}
       </div>
 
+      {/*
+        Dos columnas, también en pantalla grande.
+        Las cuatro en fila cabían en el diseño y no en la realidad: el panel
+        comparte ancho con el copiloto, así que cada tarjeta se quedaba en unos
+        120 px y «1.474,15 €» se cortaba por la mitad. Los `breakpoint` de
+        Tailwind miden la ventana, no este contenedor, de modo que ningún `lg:`
+        ni `xl:` distingue el caso — y encoger la cifra hasta que quepa sería
+        arreglar el síntoma haciendo ilegible lo único que hay que leer.
+      */}
       {resumen ? (
-        <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Kpi etiqueta="Ingresos" valor={resumen.ingresos} pie="Sin contar traspasos propios" />
-          <Kpi etiqueta="Gastos" valor={resumen.gastos} />
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <Kpi
+            etiqueta="Ingresos"
+            valor={resumen.ingresos}
+            pie="Sin contar traspasos propios"
+            onAbrir={() => alternar('ingresos')}
+            abierto={abierto === 'ingresos'}
+            controla={ID_DETALLE}
+          />
+          <Kpi
+            etiqueta="Gastos"
+            valor={resumen.gastos}
+            onAbrir={() => alternar('gastos')}
+            abierto={abierto === 'gastos'}
+            controla={ID_DETALLE}
+          />
           <Kpi
             etiqueta="Neto"
             valor={resumen.neto}
             conSigno
             pie={`${resumen.movimientos} movimiento${resumen.movimientos === 1 ? '' : 's'}`}
+            onAbrir={() => alternar('neto')}
+            abierto={abierto === 'neto'}
+            controla={ID_DETALLE}
           />
           <Kpi
             etiqueta="Traspasos"
             valor={resumen.traspasos}
             secundario
             pie="Entre cuentas propias: ni ingreso ni gasto"
+            onAbrir={() => alternar('traspasos')}
+            abierto={abierto === 'traspasos'}
+            controla={ID_DETALLE}
           />
         </div>
+      ) : null}
+
+      {abierto && resumen && mesActivo ? (
+        <DetalleKpi
+          id={ID_DETALLE}
+          tipo={abierto}
+          movimientos={movimientos}
+          mes={mesActivo}
+          resumen={resumen}
+          onCerrar={() => setAbierto(null)}
+        />
       ) : null}
 
       {pendientes > 0 ? (
@@ -119,6 +173,13 @@ export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps
 
       <div className="mb-7">
         <DesgloseGasto lineas={desglose} total={resumen?.gastos ?? 0} />
+      </div>
+
+      {/* La línea de tiempo mira TODOS los movimientos, no los del mes elegido:
+          es la única pieza del panel que responde a «hacia dónde va esto», y
+          recortarla al mes activo la dejaría sin nada que decir. */}
+      <div className="mb-7">
+        <LineaTiempo movimientos={movimientos} />
       </div>
 
       <div>
