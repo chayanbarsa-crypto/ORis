@@ -114,9 +114,11 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
         <h3 className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">
           Variación acumulada
         </h3>
-        <p className="text-[0.74rem] text-white/35">
-          Desde el primer movimiento que tienes cargado
-        </p>
+        {/* El periodo lo escribe quien filtra (`Historico`), no el gráfico:
+            aquí no se sabe si esto es todo el histórico o un recorte, y decir
+            «desde el primer movimiento» cuando hay un filtro puesto sería
+            falso. */}
+        <p className="text-[0.74rem] text-white/35">{resumenPeriodo(serie)}</p>
       </div>
 
       <div ref={contenedor} className="relative">
@@ -256,6 +258,13 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
       ) : null}
     </div>
   );
+}
+
+/** «6 meses, 92 movimientos». Describe lo que hay en el gráfico, sin afirmar de dónde sale. */
+function resumenPeriodo(serie: readonly PuntoMes[]): string {
+  const movs = serie.reduce((acc, p) => acc + p.movimientos, 0);
+  const meses = serie.length;
+  return `${meses} ${meses === 1 ? 'mes' : 'meses'} · ${movs} movimiento${movs === 1 ? '' : 's'}`;
 }
 
 function yDeCero(puntos: readonly Punto[]): number | null {

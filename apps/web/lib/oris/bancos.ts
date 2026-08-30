@@ -55,6 +55,15 @@ const BANCOS: ReadonlyArray<{ nombre: string; señas: readonly string[] }> = [
 ];
 
 /**
+ * Los nombres que ORis reconoce, para ofrecerlos cuando hay que preguntar.
+ *
+ * Es una sugerencia, no una lista cerrada: el campo admite escribir cualquier
+ * cosa. Cerrarla dejaría fuera al banco que todavía no está aquí, y entonces
+ * la pregunta no tendría respuesta posible.
+ */
+export const BANCOS_CONOCIDOS: readonly string[] = BANCOS.map((b) => b.nombre);
+
+/**
  * Los cuatro dígitos del IBAN español que identifican a la entidad.
  *
  * Es la vía más fiable de todas: no depende de cómo se escriba el nombre. Sólo

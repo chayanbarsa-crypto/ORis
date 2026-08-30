@@ -20,12 +20,10 @@ import { NextResponse } from 'next/server';
 import { and, eq, inArray } from 'drizzle-orm';
 
 import { db, hayBaseDeDatos } from '@/lib/db';
+import { USUARIO } from '@/lib/oris/usuario';
 import { categorias, movimientos, reglasCategorizacion } from '@/lib/db/schema';
 
 export const runtime = 'nodejs';
-
-/** Mientras no haya login, todo pertenece al mismo usuario. */
-const USUARIO = 'jordy';
 
 /** Prioridad de lo aprendido: ver `reglaAprendida` en lib/oris/revision.ts. */
 const PRIORIDAD_APRENDIDA = 60;

@@ -22,6 +22,7 @@
 import { NextResponse } from 'next/server';
 
 import { hayBaseDeDatos } from '@/lib/db';
+import { USUARIO } from '@/lib/oris/usuario';
 import { ErrorIngesta, hashDocumento, ingerir, type ExtraccionJSON } from '@/lib/db/ingesta';
 import { categorizar } from '@/lib/oris/categorizar';
 import { ErrorExtraccion, MODELO, extraer, hayClaveIA } from '@/lib/oris/extraccion';
@@ -40,9 +41,6 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 const MAX_MB = 32;
-
-/** Mientras no haya login, todo lo subido pertenece al mismo usuario. */
-const USUARIO = 'jordy';
 
 export async function POST(req: Request) {
   if (!hayBaseDeDatos) {

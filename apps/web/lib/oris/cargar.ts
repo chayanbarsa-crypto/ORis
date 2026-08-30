@@ -10,9 +10,10 @@
  * uno vacío — parece que funciona, y el fallo se descubre mucho más tarde.
  */
 
-import { desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 
 import { db, hayBaseDeDatos } from '@/lib/db';
+import { USUARIO } from './usuario';
 import {
   categorias as tablaCategorias,
   extractos as tablaExtractos,
@@ -45,6 +46,8 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
         importe: tablaMovimientos.importe,
         categoria: tablaCategorias.nombre,
         origen: tablaMovimientos.origen,
+        banco: tablaExtractos.banco,
+        extractoId: tablaMovimientos.extractoId,
       })
       .from(tablaMovimientos)
       // `leftJoin` y no `innerJoin`: un movimiento sin categorizar tiene que
@@ -52,6 +55,11 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
       // hay que revisar, y los totales cuadrarían con un extracto que ya no es
       // el que subió el usuario.
       .leftJoin(tablaCategorias, eq(tablaCategorias.id, tablaMovimientos.categoriaId))
+      // El banco lo declara el extracto, no el movimiento: es del extracto de
+      // donde salió, y así preguntarlo una vez arregla todos sus movimientos
+      // de golpe en lugar de uno a uno.
+      .innerJoin(tablaExtractos, eq(tablaExtractos.id, tablaMovimientos.extractoId))
+      .where(eq(tablaMovimientos.usuarioId, USUARIO))
       .orderBy(desc(tablaMovimientos.fecha), desc(tablaMovimientos.posicion))
       .limit(limite);
 
@@ -63,6 +71,8 @@ export async function cargarMovimientos(limite = 500): Promise<CargaMovimientos>
         importe: f.importe,
         categoria: f.categoria,
         origen: f.origen,
+        banco: f.banco,
+        extractoId: f.extractoId,
       })),
       motivo: null,
     };
@@ -161,6 +171,7 @@ export async function cargarExtractos(limite = 50): Promise<ExtractoVista[]> {
       })
       .from(tablaExtractos)
       .leftJoin(tablaMovimientos, eq(tablaMovimientos.extractoId, tablaExtractos.id))
+      .where(eq(tablaExtractos.usuarioId, USUARIO))
       .groupBy(tablaExtractos.id)
       .orderBy(desc(tablaExtractos.subidoEn))
       .limit(limite);

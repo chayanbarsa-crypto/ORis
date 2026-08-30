@@ -79,7 +79,11 @@ export function AppShell({ movimientos = [], extractos = [], motivoVacio }: AppS
             <ListaMovimientos movimientos={movimientos} />
           </section>
         ) : (
-          <PanelPrincipal movimientos={movimientos} motivoVacio={motivoVacio} />
+          <PanelPrincipal
+            movimientos={movimientos}
+            extractos={extractos}
+            motivoVacio={motivoVacio}
+          />
         )}
 
         {/* El chat sigue siendo el hueco que era: no hay backend de IA todavía,

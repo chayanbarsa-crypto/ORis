@@ -23,10 +23,11 @@ import {
   resumirMes,
   type MovimientoVista,
 } from '@/lib/oris/agregados';
+import type { ExtractoVista } from '@/lib/oris/cargar';
 import { DesgloseGasto } from './DesgloseGasto';
 import { DetalleKpi, type TipoKpi } from './DetalleKpi';
+import { Historico } from './Historico';
 import { Kpi } from './Kpi';
-import { LineaTiempo } from './LineaTiempo';
 import { ListaMovimientos } from './ListaMovimientos';
 
 /** `id` fijo del panel de detalle, para que `aria-controls` apunte a algo real. */
@@ -34,11 +35,13 @@ const ID_DETALLE = 'detalle-kpi';
 
 export interface PanelPrincipalProps {
   movimientos: readonly MovimientoVista[];
+  /** Sólo para saber de cuáles falta el banco, y poder preguntarlo. */
+  extractos?: readonly ExtractoVista[];
   /** Por qué no hay datos, cuando no los hay. Se muestra tal cual. */
   motivoVacio?: string;
 }
 
-export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps) {
+export function PanelPrincipal({ movimientos, extractos = [], motivoVacio }: PanelPrincipalProps) {
   const meses = useMemo(() => mesesDisponibles(movimientos), [movimientos]);
   const [mes, setMes] = useState<string | null>(null);
   const [abierto, setAbierto] = useState<TipoKpi | null>(null);
@@ -175,11 +178,12 @@ export function PanelPrincipal({ movimientos, motivoVacio }: PanelPrincipalProps
         <DesgloseGasto lineas={desglose} total={resumen?.gastos ?? 0} />
       </div>
 
-      {/* La línea de tiempo mira TODOS los movimientos, no los del mes elegido:
-          es la única pieza del panel que responde a «hacia dónde va esto», y
-          recortarla al mes activo la dejaría sin nada que decir. */}
+      {/* El histórico mira TODOS los movimientos, no los del mes elegido: es
+          la única pieza del panel que responde a «hacia dónde va esto», y
+          recortarla al mes activo la dejaría sin nada que decir. Su propio
+          filtro decide cuánto histórico enseña. */}
       <div className="mb-7">
-        <LineaTiempo movimientos={movimientos} />
+        <Historico movimientos={movimientos} extractos={extractos} />
       </div>
 
       <div>

@@ -29,6 +29,17 @@ export interface MovimientoVista {
   importe: string;
   categoria: string | null;
   origen: 'regla' | 'ia' | 'manual' | null;
+  /**
+   * De qué banco viene, heredado del extracto que lo trajo. `null` cuando no
+   * se pudo identificar y nadie lo ha dicho todavía.
+   *
+   * Opcional en el tipo y no obligatorio a propósito: la mayoría de los
+   * cálculos —totales, categorías, cuadres— no dependen del banco, y exigirlo
+   * obligaría a inventárselo en cada prueba que sólo mira importes.
+   */
+  banco?: string | null;
+  /** El extracto del que salió. Sirve para preguntar por su banco. */
+  extractoId?: string;
 }
 
 export interface ResumenMes {

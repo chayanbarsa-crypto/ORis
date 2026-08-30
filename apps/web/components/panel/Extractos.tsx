@@ -16,6 +16,7 @@
 
 import { periodoCorto, tituloExtracto } from '@/lib/oris/bancos';
 import type { ExtractoVista } from '@/lib/oris/cargar';
+import { PedirBanco } from './PedirBanco';
 
 export interface ExtractosProps {
   extractos: readonly ExtractoVista[];
@@ -96,6 +97,17 @@ export function Extractos({ extractos }: ExtractosProps) {
               </li>
             ))}
           </ul>
+
+          {/* La pregunta va donde está el problema: debajo de los extractos
+              que no tienen banco, uno por uno, en vez de un aviso general que
+              no dice cuál es cuál. */}
+          {banco === SIN_IDENTIFICAR ? (
+            <div className="mt-2 space-y-2">
+              {suyos.map((e) => (
+                <PedirBanco key={e.id} extracto={e} />
+              ))}
+            </div>
+          ) : null}
         </div>
       ))}
 
@@ -109,18 +121,21 @@ export function Extractos({ extractos }: ExtractosProps) {
   );
 }
 
+/** Etiqueta de los que no se pudieron identificar. Es un estado, no un banco. */
+const SIN_IDENTIFICAR = 'Banco no identificado';
+
 /** Por banco, con los no identificados al final. */
 function agrupar(extractos: readonly ExtractoVista[]): [string, ExtractoVista[]][] {
   const mapa = new Map<string, ExtractoVista[]>();
   for (const e of extractos) {
-    const clave = e.banco ?? 'Banco no identificado';
+    const clave = e.banco ?? SIN_IDENTIFICAR;
     const lista = mapa.get(clave);
     if (lista) lista.push(e);
     else mapa.set(clave, [e]);
   }
   return [...mapa.entries()].sort(([a], [b]) => {
-    if (a === 'Banco no identificado') return 1;
-    if (b === 'Banco no identificado') return -1;
+    if (a === SIN_IDENTIFICAR) return 1;
+    if (b === SIN_IDENTIFICAR) return -1;
     return a.localeCompare(b, 'es');
   });
 }
