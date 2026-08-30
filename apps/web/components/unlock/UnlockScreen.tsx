@@ -1,39 +1,66 @@
 'use client';
 
 /**
- * Pantalla de desbloqueo: la puerta de entrada a IRES.
+ * La puerta de ORis: la constelación y, detrás, el PIN.
  *
- * No es un login. La secuencia es locked -> awakening -> success -> idle, y
- * cada paso tiene su duracion propia para que se lea como un despertar y no
- * como un cambio de pantalla.
+ * Los dos pasos hacen cosas distintas y conviene no confundirlas. **El patrón
+ * no es seguridad**: se dibuja en el navegador y allí no se puede guardar
+ * ningún secreto. Es el ritual de entrada — despierta a ORis, y está porque una
+ * herramienta que se abre bien se usa más. **El PIN sí lo es**: lo comprueba el
+ * servidor, y hasta que lo acierta no se sirve ni un movimiento.
+ *
+ * Por eso el patrón lleva siempre al PIN en vez de abrir nada, y por eso tres
+ * patrones fallidos no bloquean: saltan directamente al teclado. Que un gesto
+ * mal dibujado te dejara fuera de tus propias cuentas sería una cerradura que
+ * protege de su dueño.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PiscesConstellation } from '@/components/constellation/PiscesConstellation';
 import { PinPad } from './PinPad';
 import { useIres } from '@/lib/ires/context';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { rgba } from '@/lib/ires/theme';
-import { MAX_PATTERN_ATTEMPTS, PIN_ENABLED } from '@/lib/ires/accessConfig';
+import { MAX_PATTERN_ATTEMPTS } from '@/lib/ires/accessConfig';
 
 const AWAKEN_MS = 1800;
 const SUCCESS_HOLD_MS = 900;
 
-export function UnlockScreen() {
+export interface UnlockScreenProps {
+  /** A dónde ir cuando el servidor acepta el PIN. Siempre una ruta interna. */
+  destino?: string;
+}
+
+export function UnlockScreen({ destino = '/' }: UnlockScreenProps) {
+  const router = useRouter();
   const { state, setState, theme, desbloqueado, abrir } = useIres();
   const reduced = useReducedMotion();
   const [awaken, setAwaken] = useState(0);
   const [fails, setFails] = useState(0);
+  const [pidiendoPin, setPidiendoPin] = useState(false);
   const rafRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Tras agotar los intentos, la constelacion cede el paso al PIN — si hay
-  // PIN configurado. Sin variable de entorno no existe respaldo y se sigue
-  // intentando el patron, que es preferible a un teclado que nunca abre.
-  const showPin = fails >= MAX_PATTERN_ATTEMPTS && PIN_ENABLED;
+  // El PIN aparece al acertar el patrón o al fallarlo tres veces. Las dos vías
+  // llevan al mismo sitio porque el patrón no decide nada: decide el servidor.
+  const showPin = pidiendoPin || fails >= MAX_PATTERN_ATTEMPTS;
 
   const handleFail = useCallback(() => setFails((n) => n + 1), []);
+
+  /** El servidor ha aceptado el PIN: la cookie ya está puesta. */
+  const handleDentro = useCallback(() => {
+    abrir();
+    setState('success');
+    // `refresh` además de `replace`: el panel se renderiza en el servidor y sin
+    // esto se serviría la copia cacheada de antes de tener sesión, que es la
+    // redirección de vuelta a esta misma pantalla.
+    timerRef.current = setTimeout(() => {
+      router.replace(destino);
+      router.refresh();
+    }, SUCCESS_HOLD_MS);
+  }, [abrir, destino, router, setState]);
 
   const handleUnlock = useCallback(() => {
     setState('awakening');
@@ -41,11 +68,7 @@ export function UnlockScreen() {
     if (reduced) {
       // Sin movimiento: se salta la coreografia, no el flujo de estados.
       setAwaken(1);
-      setState('success');
-      timerRef.current = setTimeout(() => {
-        abrir();
-        setState('idle');
-      }, 300);
+      setPidiendoPin(true);
       return;
     }
 
@@ -58,15 +81,13 @@ export function UnlockScreen() {
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
-        setState('success');
-        timerRef.current = setTimeout(() => {
-          abrir();
-          setState('idle');
-        }, SUCCESS_HOLD_MS);
+        // Despierta, y entonces pide el PIN. La animación es la bienvenida;
+        // la cerradura viene después.
+        setPidiendoPin(true);
       }
     };
     rafRef.current = requestAnimationFrame(tick);
-  }, [reduced, setState, abrir]);
+  }, [reduced, setState]);
 
   useEffect(() => {
     return () => {
@@ -121,7 +142,7 @@ export function UnlockScreen() {
           {/* El PIN se superpone a la constelacion, que sigue latiendo detras:
               se cambia el metodo de acceso, no se cambia de pantalla. */}
           <AnimatePresence>
-            {showPin && locked && (
+            {showPin && !desbloqueado && (
               <motion.div
                 key="pin"
                 className="absolute inset-0 z-10 flex items-center justify-center bg-[#040814]/55 backdrop-blur-[2px]"
@@ -130,7 +151,7 @@ export function UnlockScreen() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.45 }}
               >
-                <PinPad onUnlock={handleUnlock} />
+                <PinPad onUnlock={handleDentro} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -152,14 +173,14 @@ export function UnlockScreen() {
             </span>
             <span className="max-w-xs text-[0.68rem] leading-relaxed text-white/25">
               {showPin
-                ? 'Patrón bloqueado tras 3 intentos · introduce el PIN'
-                : fails >= MAX_PATTERN_ATTEMPTS
-                  ? 'Sin PIN configurado: define NEXT_PUBLIC_UNLOCK_PIN en .env.local'
-                  : fails > 0
-                    ? `Patrón no reconocido · ${MAX_PATTERN_ATTEMPTS - fails} ${
-                        MAX_PATTERN_ATTEMPTS - fails === 1 ? 'intento restante' : 'intentos restantes'
-                      }`
-                    : 'Une los puntos numerados para despertar a ORis'}
+                ? 'ORis está despierto · ahora el PIN'
+                : fails > 0
+                  ? `Patrón no reconocido · ${MAX_PATTERN_ATTEMPTS - fails} ${
+                      MAX_PATTERN_ATTEMPTS - fails === 1
+                        ? 'intento antes de pasar al PIN'
+                        : 'intentos antes de pasar al PIN'
+                    }`
+                  : 'Une los puntos numerados para despertar a ORis'}
             </span>
           </motion.footer>
         </motion.div>

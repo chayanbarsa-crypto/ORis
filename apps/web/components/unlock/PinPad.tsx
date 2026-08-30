@@ -1,13 +1,18 @@
 'use client';
 
 /**
- * PIN de respaldo tras agotar los intentos de patron.
+ * El PIN. Lo que de verdad abre la puerta.
  *
- * Se valida solo cuando estan los 4 digitos: comprobar a cada pulsacion
- * revelaria la longitud y el prefijo por ensayo y error.
+ * Antes comparaba contra una constante que viajaba en el JavaScript de la
+ * página; ahora pregunta al servidor, que es el único que sabe la respuesta. Lo
+ * que vuelve no es un «sí» que el navegador pueda fingir: es una cookie firmada
+ * que el `middleware` verifica en cada petición posterior.
  *
- * Las teclas son de 64px con separacion generosa porque este es justamente
- * el momento en que el usuario esta nervioso y probablemente en el movil.
+ * Se envía sólo al completar los dígitos: comprobar a cada pulsación revelaría
+ * la longitud y el prefijo por ensayo y error.
+ *
+ * Las teclas son grandes y separadas porque éste es justamente el momento en
+ * que el usuario está con prisa y probablemente en el móvil.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -15,11 +20,12 @@ import { motion } from 'framer-motion';
 import { IresEye } from '@/components/ui/IresEye';
 import { useIres } from '@/lib/ires/context';
 import { IRES_THEME, rgba } from '@/lib/ires/theme';
-import { PIN_LENGTH, isValidPin } from '@/lib/ires/accessConfig';
+import { PIN_LENGTH } from '@/lib/ires/accessConfig';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
 
 export interface PinPadProps {
+  /** Se llama cuando el servidor ha aceptado el PIN y la cookie ya está puesta. */
   onUnlock(): void;
 }
 
@@ -27,7 +33,10 @@ export function PinPad({ onUnlock }: PinPadProps) {
   const { theme } = useIres();
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [comprobando, setComprobando] = useState(false);
   const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const enVuelo = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -35,9 +44,46 @@ export function PinPad({ onUnlock }: PinPadProps) {
     };
   }, []);
 
+  const fallar = useCallback((mensaje: string) => {
+    setError(true);
+    setAviso(mensaje);
+    errorTimer.current = setTimeout(() => {
+      setPin('');
+      setError(false);
+    }, 700);
+  }, []);
+
+  const comprobar = useCallback(
+    async (candidato: string) => {
+      if (enVuelo.current) return;
+      enVuelo.current = true;
+      setComprobando(true);
+      try {
+        const res = await fetch('/api/pin', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ pin: candidato }),
+        });
+        if (res.ok) {
+          setAviso(null);
+          onUnlock();
+          return;
+        }
+        const datos = await res.json().catch(() => ({}));
+        fallar(datos.mensaje ?? 'PIN incorrecto');
+      } catch {
+        fallar('No he podido comprobarlo. ¿Hay conexión?');
+      } finally {
+        enVuelo.current = false;
+        setComprobando(false);
+      }
+    },
+    [fallar, onUnlock],
+  );
+
   const press = useCallback(
     (key: string) => {
-      if (key === '') return;
+      if (key === '' || enVuelo.current) return;
       setError(false);
 
       if (key === '⌫') {
@@ -47,21 +93,11 @@ export function PinPad({ onUnlock }: PinPadProps) {
       setPin((prev) => {
         if (prev.length >= PIN_LENGTH) return prev;
         const next = prev + key;
-        if (next.length === PIN_LENGTH) {
-          if (isValidPin(next)) {
-            onUnlock();
-          } else {
-            setError(true);
-            errorTimer.current = setTimeout(() => {
-              setPin('');
-              setError(false);
-            }, 700);
-          }
-        }
+        if (next.length === PIN_LENGTH) void comprobar(next);
         return next;
       });
     },
-    [onUnlock],
+    [comprobar],
   );
 
   // Teclado fisico: en escritorio nadie quiere pulsar botones con el raton.
@@ -84,8 +120,11 @@ export function PinPad({ onUnlock }: PinPadProps) {
     >
       <div className="flex flex-col items-center gap-1">
         <IresEye size={112} />
+        {/* Ya no es «acceso alternativo»: era el respaldo del patrón cuando
+            el patrón abría, y ahora el patrón sólo despierta. Esto es la
+            cerradura. */}
         <p className="mt-1 text-[0.6rem] uppercase tracking-[0.3em] text-white/40">
-          Acceso alternativo
+          Tu PIN
         </p>
       </div>
 
@@ -133,7 +172,7 @@ export function PinPad({ onUnlock }: PinPadProps) {
       </div>
 
       <p className="mt-5 text-center text-[0.66rem] leading-relaxed text-white/25">
-        {error ? 'PIN incorrecto' : 'Introduce tu PIN para despertar a ORis'}
+        {comprobando ? 'Comprobando…' : (aviso ?? 'Introduce tu PIN para despertar a ORis')}
       </p>
     </motion.div>
   );

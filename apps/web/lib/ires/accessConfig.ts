@@ -1,30 +1,26 @@
 /**
- * Configuracion de acceso a IRES.
+ * Configuración de acceso a ORis.
  *
- * ⚠️ ESTO NO ES SEGURIDAD. El patron y el PIN acaban en el bundle de
- * JavaScript: cualquiera que abra las herramientas de desarrollo los ve. Es
- * una cerradura de conveniencia para que la aplicacion no se abra sola, nada
- * mas. Cuando IRES maneje datos financieros reales, la autenticacion tiene
- * que vivir en el servidor y esto debe desaparecer.
+ * Aquí vivía el PIN, leído de `NEXT_PUBLIC_UNLOCK_PIN`, y este archivo avisaba
+ * de que eso no era seguridad: una variable `NEXT_PUBLIC_` acaba dentro del
+ * JavaScript que se descarga, así que el PIN se leía abriendo las herramientas
+ * de desarrollo. Era una cerradura de conveniencia, y se dijo desde el primer
+ * día que tenía que desaparecer en cuanto hubiera dinero de verdad detrás.
  *
- * El PIN se lee de una variable de entorno y NO tiene valor por defecto: si
- * estuviera escrito aqui, quedaria en el historial de git para siempre en
- * cuanto el repositorio se publique. Sin variable definida, el acceso por PIN
- * simplemente no se ofrece y solo funciona el patron.
- *
- * Se define en `.env.local` (ignorado por git). Ver `.env.example`.
+ * Ese día llegó. Ahora el PIN se comprueba en el servidor —`app/api/pin`— y no
+ * existe ninguna copia en el navegador: lo único que viaja es la cookie firmada
+ * que devuelve el servidor si acierta. Lo que queda aquí son medidas de la
+ * interfaz, que no guardan ningún secreto.
  */
 
-/** Intentos de patron fallidos antes de ofrecer el PIN de respaldo. */
+/** Intentos de patrón fallidos antes de ofrecer el PIN directamente. */
 export const MAX_PATTERN_ATTEMPTS = 3;
 
-const PIN = process.env.NEXT_PUBLIC_UNLOCK_PIN ?? '';
-
-/** Si no hay PIN configurado, el respaldo no existe. */
-export const PIN_ENABLED = PIN.length > 0;
-
-export const PIN_LENGTH = PIN.length || 4;
-
-export function isValidPin(input: string): boolean {
-  return PIN_ENABLED && input === PIN;
-}
+/**
+ * Cuántos puntos se dibujan mientras se teclea.
+ *
+ * Es sólo la forma del componente. El servidor acepta de cuatro a ocho dígitos
+ * y no dice cuántos son los correctos: contarlo en pantalla le ahorraría trabajo
+ * a quien esté probando.
+ */
+export const PIN_LENGTH = 4;

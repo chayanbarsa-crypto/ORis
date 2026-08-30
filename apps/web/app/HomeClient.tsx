@@ -1,9 +1,7 @@
 'use client';
 
 import { StarField } from '@/components/background/StarField';
-import { UnlockScreen } from '@/components/unlock/UnlockScreen';
 import { AppShell } from '@/components/ui/AppShell';
-import { useIres } from '@/lib/ires/context';
 import type { MovimientoVista } from '@/lib/oris/agregados';
 import type { ExtractoVista } from '@/lib/oris/cargar';
 
@@ -13,20 +11,23 @@ export interface HomeClientProps {
   motivoVacio?: string;
 }
 
+/**
+ * Aquí ya no hay puerta.
+ *
+ * La había —la pantalla de la constelación con `desbloqueado`— y era un telón,
+ * no una cerradura: esta página se renderiza en el servidor, así que los
+ * movimientos ya estaban dentro del HTML antes de que nadie desbloqueara nada.
+ * Ahora la puerta es el `middleware`, y si esta página llega a ejecutarse es
+ * porque la cookie firmada era válida.
+ */
 export function HomeClient({ movimientos, extractos, motivoVacio }: HomeClientProps) {
-  const { desbloqueado } = useIres();
-
   return (
     <main className="relative h-dvh w-screen overflow-hidden">
       {/* El campo estelar nunca se desmonta: sobrevive al desbloqueo y sigue
           reaccionando al estado de IRES en toda la aplicacion. */}
       <StarField />
 
-      {/* El panel se enseña cuando la puerta está abierta, no cuando ORis
-          está en reposo. Eran la misma condición, y por eso ponerse a analizar
-          un extracto te devolvía a la constelación. */}
-      {desbloqueado && <AppShell movimientos={movimientos} extractos={extractos} motivoVacio={motivoVacio} />}
-      <UnlockScreen />
+      <AppShell movimientos={movimientos} extractos={extractos} motivoVacio={motivoVacio} />
     </main>
   );
 }
