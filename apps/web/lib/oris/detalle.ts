@@ -50,6 +50,11 @@ const RUIDO = new Set([
   'RECIBO', 'ADEUDO', 'DOMICILIACION', 'PAGO', 'COMPRA', 'TARJETA', 'TARJ',
   'ABONO', 'INGRESO', 'MOVIMIENTO', 'OPERACION', 'CONCEPTO', 'REF', 'REFERENCIA',
   'SU', 'FAVOR', 'CTA', 'CUENTA', 'ENVIO', 'RECIBIDOS',
+  // Verbos y coletillas que trae el extracto de empresa: «Cargo por
+  // amortización…», «Transferencia realizada ALQUILER…», «Www.reservas.example».
+  // Sin ellos la raíz empieza en «Cargo» o «Realizada», que es lo único que
+  // NO distingue a un movimiento de otro.
+  'CARGO', 'CARGOS', 'REALIZADA', 'REALIZADO', 'WWW',
 ]);
 
 /**

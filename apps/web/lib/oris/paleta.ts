@@ -52,3 +52,34 @@ export const SUPERFICIE = 'var(--superficie)';
 
 /** Separación entre barras contiguas, en píxeles. Deja ver el fondo entre marcas. */
 export const HUECO_BARRAS = 2;
+
+/**
+ * Los dos escalones con que se parte el gasto: estructura y variable.
+ *
+ * Aquí no se rompe la regla del tono único — se aplica. Estructura y variable
+ * **no son dos categorías**: son dos trozos de una misma magnitud, el gasto del
+ * mes, y lo que hay que poder leer es cuánto pesa cada uno dentro del total.
+ * Eso es una escala secuencial, no una paleta categórica, y una escala
+ * secuencial es un tono a dos claridades.
+ *
+ * Se consiguen con opacidad sobre `--serie` y no con dos hexadecimales porque
+ * el fondo cambia con el tema: dos tonos fijos que funcionan sobre el cielo
+ * nocturno se lavan sobre papel, y al revés. Con opacidad, el escalón se
+ * mantiene contra el fondo que haya.
+ *
+ * La opacidad no lleva sola el significado: los dos trozos van separados por
+ * `HUECO_BARRAS`, con leyenda y con su cifra al lado. Quien no distinga los dos
+ * azules sigue leyendo el gráfico por la etiqueta y por el hueco.
+ */
+export const ESTRUCTURA_OPACIDAD = 1;
+export const VARIABLE_OPACIDAD = 0.45;
+
+/**
+ * La banda de escenarios de la previsión.
+ *
+ * Ámbar, el mismo tono que la proyección de `LineaTiempo`, y por el mismo
+ * motivo: **lo que no ha pasado no se pinta con el color de lo que sí**. Muy
+ * translúcida porque es una región, no una marca — a la opacidad de una línea
+ * competiría con el saldo real que la atraviesa.
+ */
+export const BANDA_OPACIDAD = 0.14;

@@ -35,6 +35,8 @@ docs/               bóveda de Obsidian con las decisiones de diseño
 | 3 | Agente de categorización de movimientos | ⬜ |
 | 4 | Conectar la máquina de estados a los eventos del motor | ⬜ |
 | 5 | Responsive / PWA y despliegue | ⬜ |
+| 6 | Panel: resumen del mes, desglose e histórico | ✅ verificado |
+| 7 | Panel de control de pyme: compromisos, línea de tiempo y previsión | ✅ verificado |
 
 ### Sobre la fase 1
 
@@ -168,6 +170,60 @@ El desglose usa **un solo tono** porque compara magnitudes de una misma medida;
 la identidad la lleva la etiqueta. La paleta de emociones de IRES no vale aquí
 —`processing` y `empathy` están a ΔE 6,3, indistinguibles— y eso no es un fallo
 suyo: esas emociones nunca coinciden en pantalla.
+
+### Sobre la fase 7
+
+El **panel de control** —`components/panel/PanelControl.tsx`, sección «Panel de
+control»— lee los mismos movimientos como negocio y no como cuenta corriente.
+La diferencia no son más gráficos: son otras preguntas.
+
+```bash
+cd apps/web
+npx tsx lib/oris/pruebas/recurrencia.test.ts   # 36 comprobaciones
+npx tsx lib/oris/pruebas/pyme.test.ts          # 55 comprobaciones
+```
+
+Lo que lo sostiene es un módulo: `lib/oris/recurrencia.ts` parte el gasto en
+**estructura** —lo que se paga tanto si abres como si no— y **variable**, y lo
+hace **por comportamiento, no por categoría**: un cargo es un compromiso si
+aparece con cadencia estable. Funciona sin que nadie haya categorizado nada, no
+necesita que el catálogo conozca el sector, y de propina detecta lo contrario:
+un recibo que llevaba veinte meses y hace cinco que no aparece **no se
+proyecta** —sería inventar una factura— y se enseña aparte, porque «desde marzo
+no pagas nómina» es un hecho del negocio que ningún total mensual cuenta.
+
+Sobre esa partición se apoyan las tres cifras que un autónomo mira primero:
+**cobertura** (si el mes pagó la persiana), **punto de equilibrio en servicios**
+(cuántos clientes hacen falta para empezar a ganar) y **días de caja**.
+
+Y la previsión, que es lo que separa este panel de una recta:
+
+- **Lo que sale no es una media, es una lista.** El alquiler del mes que viene
+  no se estima: se sabe. Una recta que promedia el gasto total reparte a partes
+  iguales lo que cae en fechas concretas, y convierte un mes con vencimiento
+  trimestral en un mes normal.
+- **Los ingresos tienen estación.** Con dos ciclos completos se mide cuánto pesa
+  cada mes del año. Sin ellos no se corrige y se dice — corregir un solo mes y
+  dejar los otros once a 1 es un escalón inventado, no media corrección.
+- **No es un número, es una banda.** Prudente, esperado y bueno; y `prudente` es
+  siempre el que **peor deja la caja**, o sea ingreso bajo *y* gasto alto. Un
+  escenario prudente que se imagina facturando poco y gastando poco avisa del
+  mes malo cuando ya ha llegado.
+
+Tres errores que costaron cifras y que están fijados en las pruebas:
+
+| Qué pasaba | Qué se veía |
+|---|---|
+| Presupuestar un cargo en vez del mes | 26 € en lugar de 118 € para una plataforma que cobra por reserva: 78 € al mes de menos, sin que nada lo delatara |
+| Estimar el gasto por su mediana | Con impuestos trimestrales la distribución tiene dos jorobas: mediana 342 €, media 694 €. Seis meses así son dos mil euros de menos |
+| Índice estacional como mediana del propio mes | Con dos ciclos la mediana de dos valores es uno de los dos: la banda de escenarios se cerraba sobre sí misma y los tres daban la misma cifra |
+
+> El panel se diseñó leyendo un extracto real de un salón de estética:
+> veintiséis meses, 1.840 apuntes, cadena de saldos cuadrando entera. **Ese
+> extracto no está en el repositorio** —lleva nombres de clientas en los
+> conceptos de los Bizum, el domicilio del local y el IBAN del titular—. Lo que
+> sí está es `lib/oris/pruebas/pyme-sintetica.ts`: un generador determinista que
+> reproduce su **forma**, no sus datos.
 
 ## Arranque del front
 

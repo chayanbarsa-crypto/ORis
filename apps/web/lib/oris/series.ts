@@ -20,7 +20,7 @@
  */
 
 import { CATEGORIA_TRASPASO, type MovimientoVista } from './agregados';
-import { aCentimos, mesDe, type Centimos } from './dinero';
+import { aCentimos, mesDe, mesesDe, sumarMeses, type Centimos } from './dinero';
 
 export interface PuntoMes {
   /** «2026-05» */
@@ -66,7 +66,7 @@ export function serieMensual(movimientos: readonly MovimientoVista[]): PuntoMes[
   const serie: PuntoMes[] = [];
   let acumulado = 0;
 
-  for (const mes of rango(meses[0], meses[meses.length - 1])) {
+  for (const mes of mesesDe(meses[0], meses[meses.length - 1])) {
     const acc = porMes.get(mes) ?? { ingresos: 0, gastos: 0, n: 0 };
     const neto = acc.ingresos - acc.gastos;
     acumulado += neto;
@@ -81,25 +81,6 @@ export function serieMensual(movimientos: readonly MovimientoVista[]): PuntoMes[
   }
 
   return serie;
-}
-
-/** Todos los meses entre dos, incluidos los extremos. */
-function rango(desde: string, hasta: string): string[] {
-  const meses: string[] = [];
-  let [a, m] = desde.split('-').map(Number);
-  const [af, mf] = hasta.split('-').map(Number);
-
-  // Guarda contra una fecha corrupta: sin ella, un mes 0 o un año erróneo
-  // haría girar este bucle hasta agotar la memoria del servidor.
-  for (let i = 0; i < 600 && (a < af || (a === af && m <= mf)); i++) {
-    meses.push(`${a}-${String(m).padStart(2, '0')}`);
-    m += 1;
-    if (m > 12) {
-      m = 1;
-      a += 1;
-    }
-  }
-  return meses;
 }
 
 export interface Proyeccion {
@@ -126,17 +107,12 @@ export function proyectar(serie: readonly PuntoMes[], meses = 6, base = 3): Proy
   const ritmo = Math.round(ultimos.reduce((acc, p) => acc + p.neto, 0) / usados);
 
   const puntos: { mes: string; acumulado: Centimos }[] = [];
-  let acumulado = serie[serie.length - 1].acumulado;
-  let [a, m] = serie[serie.length - 1].mes.split('-').map(Number);
+  const ultimo = serie[serie.length - 1];
+  let acumulado = ultimo.acumulado;
 
-  for (let i = 0; i < meses; i++) {
-    m += 1;
-    if (m > 12) {
-      m = 1;
-      a += 1;
-    }
+  for (let i = 1; i <= meses; i++) {
     acumulado += ritmo;
-    puntos.push({ mes: `${a}-${String(m).padStart(2, '0')}`, acumulado });
+    puntos.push({ mes: sumarMeses(ultimo.mes, i), acumulado });
   }
 
   return { ritmo, base: usados, puntos };

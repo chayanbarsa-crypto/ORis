@@ -40,6 +40,21 @@ export interface MovimientoVista {
   banco?: string | null;
   /** El extracto del que salió. Sirve para preguntar por su banco. */
   extractoId?: string;
+  /**
+   * Saldo tras el apunte, tal como lo declara el extracto. `null` o ausente
+   * cuando no lo trae — y hay bancos que no lo traen.
+   *
+   * Opcional porque casi ningún cálculo lo necesita: totales, categorías y
+   * cuadres salen de los importes. Lo pide la tesorería, que es la única cifra
+   * del panel que **no se puede deducir de los movimientos**: cuánto hay ahora
+   * en la cuenta depende de con cuánto se empezó, y eso sólo lo dice el banco.
+   */
+  saldo?: string | null;
+  /**
+   * Orden dentro del extracto. Desempata dos apuntes del mismo día, que es
+   * exactamente lo que hace falta para saber cuál dejó el último saldo.
+   */
+  posicion?: number;
 }
 
 export interface ResumenMes {

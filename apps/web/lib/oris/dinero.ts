@@ -66,3 +66,55 @@ export function nombreMes(mes: string): string {
   const indice = Number(m) - 1;
   return indice >= 0 && indice < 12 ? `${MESES[indice]} de ${anio}` : mes;
 }
+
+/**
+ * Aritmética de meses, en un solo sitio.
+ *
+ * Estaba escrita tres veces —el bucle de `series.serieMensual`, el de
+ * `series.proyectar` y `rango.restarMeses`— y cada copia tenía su propia forma
+ * de cruzar diciembre. Un mes es un entero: `año * 12 + (mes − 1)`. Con eso,
+ * sumar y restar meses es sumar y restar enteros, y diciembre deja de ser un
+ * caso especial.
+ */
+
+/** «2026-05» -> 24317. Sirve para comparar y para restar; no para enseñar. */
+function ordinal(mes: string): number {
+  const [a, m] = mes.split('-').map(Number);
+  return a * 12 + (m - 1);
+}
+
+/** El inverso de `ordinal`. */
+function desdeOrdinal(total: number): string {
+  const anio = Math.floor(total / 12);
+  return `${anio}-${String(total - anio * 12 + 1).padStart(2, '0')}`;
+}
+
+/** Avanza `n` meses sobre «2026-05». `n` negativo retrocede. */
+export function sumarMeses(mes: string, n: number): string {
+  return desdeOrdinal(ordinal(mes) + n);
+}
+
+/** Cuántos meses van de `a` a `b`. Negativo si `b` es anterior. */
+export function mesesEntre(a: string, b: string): number {
+  return ordinal(b) - ordinal(a);
+}
+
+/**
+ * Todos los meses entre dos, extremos incluidos.
+ *
+ * Con el tope puesto a propósito: una fecha corrupta —un mes 0, un año de
+ * cuatro cifras mal leído— haría girar el bucle hasta agotar la memoria del
+ * servidor. Mil meses son ochenta y tres años; ningún extracto los tiene.
+ */
+export function mesesDe(desde: string, hasta: string): string[] {
+  const n = mesesEntre(desde, hasta);
+  if (n < 0) return [];
+  const meses: string[] = [];
+  for (let i = 0; i <= n && i < 1000; i++) meses.push(sumarMeses(desde, i));
+  return meses;
+}
+
+/** El mes del año, 1–12. «2026-05» -> 5. */
+export function mesDelAnio(mes: string): number {
+  return Number(mes.slice(5, 7));
+}

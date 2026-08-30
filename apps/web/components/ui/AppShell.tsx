@@ -20,6 +20,7 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { Extractos } from '@/components/panel/Extractos';
 import { Revision } from '@/components/panel/Revision';
 import { FinanceSidebar } from '@/components/finance/FinanceSidebar';
+import { PanelControl } from '@/components/panel/PanelControl';
 import { PanelPrincipal } from '@/components/panel/PanelPrincipal';
 import { ListaMovimientos } from '@/components/panel/ListaMovimientos';
 import type { MovimientoVista } from '@/lib/oris/agregados';
@@ -71,7 +72,9 @@ export function AppShell({ movimientos = [], extractos = [], motivoVacio }: AppS
       <div className="flex min-h-0 flex-1 flex-col bg-plano backdrop-blur-2xl md:flex-row">
         <FinanceSidebar seccion={seccion} onSeccion={setSeccion} pendientes={pendientes} />
 
-        {seccion === 'extractos' ? (
+        {seccion === 'control' ? (
+          <PanelControl movimientos={movimientos} motivoVacio={motivoVacio} />
+        ) : seccion === 'extractos' ? (
           <Extractos extractos={extractos} />
         ) : seccion === 'categorias' ? (
           <Revision movimientos={movimientos} />

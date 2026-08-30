@@ -13,3 +13,6 @@ export type { ChatMessage, IresResponse, IresBackend, MessageRole } from '@/lib/
 export type { SeccionPanel } from '@/components/finance/FinanceSidebar';
 export type { MovimientoVista, ResumenMes, LineaCategoria } from '@/lib/oris/agregados';
 export type { Centimos } from '@/lib/oris/dinero';
+export type { Cadencia, Compromiso } from '@/lib/oris/recurrencia';
+export type { Indicadores, LecturaMes, Tesoreria } from '@/lib/oris/pyme';
+export type { Escenario, FactorEstacional, MesPrevisto, Prevision } from '@/lib/oris/prevision';

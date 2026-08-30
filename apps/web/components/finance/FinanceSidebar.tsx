@@ -21,6 +21,10 @@ export interface SeccionPanel {
 
 export const SECCIONES: readonly SeccionPanel[] = [
   { id: 'panel', label: 'Panel', activa: true },
+  // El panel de control va justo después y no en su propio bloque: es la misma
+  // información leída de otra manera —el negocio en vez del mes—, y separarla
+  // en otra familia haría pensar que hay dos juegos de cifras distintos.
+  { id: 'control', label: 'Panel de control', activa: true },
   { id: 'movimientos', label: 'Movimientos', activa: true },
   { id: 'extractos', label: 'Extractos', activa: true },
   { id: 'categorias', label: 'Categorías', activa: true },

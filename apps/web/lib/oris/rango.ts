@@ -18,7 +18,7 @@
  */
 
 import type { MovimientoVista } from './agregados';
-import { mesDe } from './dinero';
+import { mesDe, sumarMeses } from './dinero';
 
 export type ClaveRango = '3m' | '6m' | '12m' | 'anio' | 'todo';
 
@@ -58,10 +58,7 @@ export function origen(movimientos: readonly MovimientoVista[]): string | null {
 
 /** Retrocede `n` meses sobre «2026-05». `n = 0` devuelve el mismo. */
 export function restarMeses(mes: string, n: number): string {
-  const [a, m] = mes.split('-').map(Number);
-  const total = a * 12 + (m - 1) - n;
-  const anio = Math.floor(total / 12);
-  return `${anio}-${String((total % 12) + 1).padStart(2, '0')}`;
+  return sumarMeses(mes, -n);
 }
 
 /**
