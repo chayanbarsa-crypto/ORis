@@ -96,10 +96,10 @@ export function Revision({ movimientos }: RevisionProps) {
   if (grupos.length === 0) {
     return (
       <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-        <h2 className="mb-4 text-sm font-light tracking-wide text-white/70">Categorías</h2>
-        <div className="max-w-md rounded-2xl border border-[#0E9E70]/25 bg-[#0E9E70]/[0.06] px-6 py-7">
-          <p className="text-sm text-white/75">No queda nada por categorizar.</p>
-          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-white/45">
+        <h2 className="mb-4 text-sm font-light tracking-wide text-tinta-2">Categorías</h2>
+        <div className="max-w-md rounded-2xl border border-bien-borde bg-bien-fondo px-6 py-7">
+          <p className="text-sm text-tinta-2">No queda nada por categorizar.</p>
+          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-tinta-4">
             {hechos > 0
               ? `Has resuelto ${hechos} ${hechos === 1 ? 'grupo' : 'grupos'}. Las reglas aprendidas se aplicarán solas la próxima vez que aparezcan.`
               : 'Todos los movimientos tienen categoría.'}
@@ -112,10 +112,10 @@ export function Revision({ movimientos }: RevisionProps) {
   if (!grupo) {
     return (
       <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-        <h2 className="mb-4 text-sm font-light tracking-wide text-white/70">Categorías</h2>
-        <div className="max-w-md rounded-2xl border border-[#0E9E70]/25 bg-[#0E9E70]/[0.06] px-6 py-7">
-          <p className="text-sm text-white/75">Por hoy hemos terminado.</p>
-          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-white/45">
+        <h2 className="mb-4 text-sm font-light tracking-wide text-tinta-2">Categorías</h2>
+        <div className="max-w-md rounded-2xl border border-bien-borde bg-bien-fondo px-6 py-7">
+          <p className="text-sm text-tinta-2">Por hoy hemos terminado.</p>
+          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-tinta-4">
             Has resuelto {hechos} {hechos === 1 ? 'grupo' : 'grupos'}. Recarga para ver
             si queda algo más.
           </p>
@@ -129,16 +129,16 @@ export function Revision({ movimientos }: RevisionProps) {
   return (
     <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-light tracking-wide text-white/70">Categorías</h2>
-        <p className="text-[0.74rem] tabular-nums text-white/40">
+        <h2 className="text-sm font-light tracking-wide text-tinta-2">Categorías</h2>
+        <p className="text-[0.74rem] tabular-nums text-tinta-4">
           {grupos.length - indice} sin resolver · {formatear(restante)}
         </p>
       </div>
 
       {/* La pregunta, tal cual la redacta `revision.ts` con lo que el extracto
           sabe. Ni hora ni ubicación: no constan. */}
-      <div className="max-w-2xl rounded-2xl border border-white/[0.09] bg-white/[0.03] px-5 py-5">
-        <p className="text-[0.95rem] leading-relaxed text-white/85">{redactarPregunta(grupo)}</p>
+      <div className="max-w-2xl rounded-2xl border border-borde-2 bg-superficie px-5 py-5">
+        <p className="text-[0.95rem] leading-relaxed text-tinta-2">{redactarPregunta(grupo)}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {SUGERIDAS.map((c) => (
@@ -147,7 +147,7 @@ export function Revision({ movimientos }: RevisionProps) {
               type="button"
               disabled={guardando}
               onClick={() => void asignar(c)}
-              className="rounded-full border border-white/[0.12] px-3 py-1.5 text-[0.78rem] text-white/70 transition-colors hover:border-white/30 hover:bg-white/[0.06] hover:text-white/95 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-full border border-borde-2 px-3 py-1.5 text-[0.78rem] text-tinta-2 transition-colors hover:border-borde-4 hover:bg-superficie-2 hover:text-tinta disabled:cursor-not-allowed disabled:opacity-40"
             >
               {c}
             </button>
@@ -168,12 +168,12 @@ export function Revision({ movimientos }: RevisionProps) {
             disabled={guardando}
             placeholder="…o escribe otra"
             aria-label="Categoría nueva"
-            className="min-w-0 flex-1 rounded-lg border border-white/[0.1] bg-white/[0.02] px-3.5 py-2 text-[0.84rem] text-white/85 placeholder:text-white/25 focus:border-white/30 focus:outline-none"
+            className="min-w-0 flex-1 rounded-lg border border-borde-2 bg-superficie px-3.5 py-2 text-[0.84rem] text-tinta-2 placeholder:text-tinta-5 focus:border-borde-4 focus:outline-none"
           />
           <button
             type="submit"
             disabled={guardando || escrita.trim() === ''}
-            className="rounded-lg border border-[#2D96F0]/45 bg-[#2D96F0]/15 px-4 py-2 text-[0.82rem] text-white/90 transition-colors hover:bg-[#2D96F0]/25 disabled:cursor-not-allowed disabled:opacity-35"
+            className="rounded-lg border border-serie-borde bg-serie/15 px-4 py-2 text-[0.82rem] text-tinta transition-colors hover:bg-serie/25 disabled:cursor-not-allowed disabled:opacity-35"
           >
             Es esto
           </button>
@@ -184,16 +184,16 @@ export function Revision({ movimientos }: RevisionProps) {
               setEscrita('');
               setIndice((i) => i + 1);
             }}
-            className="rounded-lg px-3 py-2 text-[0.8rem] text-white/40 transition-colors hover:text-white/70 disabled:opacity-40"
+            className="rounded-lg px-3 py-2 text-[0.8rem] text-tinta-4 transition-colors hover:text-tinta-2 disabled:opacity-40"
           >
             No me acuerdo
           </button>
         </form>
 
         {error ? (
-          <p className="mt-3 text-[0.78rem] text-[#E05252]">{error}</p>
+          <p className="mt-3 text-[0.78rem] text-mal">{error}</p>
         ) : (
-          <p className="mt-3 text-[0.72rem] leading-relaxed text-white/30">
+          <p className="mt-3 text-[0.72rem] leading-relaxed text-tinta-5">
             Lo que digas queda como decisión tuya: ninguna regla ni el modelo la
             volverán a cambiar. Y aprendo una regla para las próximas veces.
           </p>
@@ -203,17 +203,17 @@ export function Revision({ movimientos }: RevisionProps) {
       {/* Lo que viene después, para que se vea que esto acaba. */}
       {grupos.length - indice > 1 ? (
         <div className="mt-6 max-w-2xl">
-          <h3 className="mb-2 text-[0.6rem] uppercase tracking-[0.2em] text-white/35">
+          <h3 className="mb-2 text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">
             Después de éste
           </h3>
-          <ul className="overflow-hidden rounded-xl border border-white/[0.07]">
+          <ul className="overflow-hidden rounded-xl border border-borde">
             {grupos.slice(indice + 1, indice + 6).map((g) => (
               <li
                 key={g.raiz}
-                className="flex items-baseline justify-between gap-4 border-b border-white/[0.05] px-4 py-2.5 last:border-b-0"
+                className="flex items-baseline justify-between gap-4 border-b border-borde px-4 py-2.5 last:border-b-0"
               >
-                <span className="truncate text-[0.82rem] text-white/60">{g.conceptoCrudo}</span>
-                <span className="shrink-0 text-[0.76rem] tabular-nums text-white/40">
+                <span className="truncate text-[0.82rem] text-tinta-3">{g.conceptoCrudo}</span>
+                <span className="shrink-0 text-[0.76rem] tabular-nums text-tinta-4">
                   {g.veces > 1 ? `${g.veces}× · ` : ''}
                   {formatear(Math.abs(g.total))}
                 </span>

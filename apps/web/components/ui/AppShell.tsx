@@ -27,6 +27,7 @@ import type { ExtractoVista } from '@/lib/oris/cargar';
 import { agruparPendientes } from '@/lib/oris/revision';
 import { IresEye } from './IresEye';
 import { StatusBadge } from './StatusBadge';
+import { Tema } from './Tema';
 
 export interface AppShellProps {
   movimientos?: readonly MovimientoVista[];
@@ -49,12 +50,15 @@ export function AppShell({ movimientos = [], extractos = [], motivoVacio }: AppS
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
     >
-      <header className="flex items-center justify-between border-b border-white/[0.07] px-5 py-3 backdrop-blur-sm sm:px-7">
+      <header className="flex items-center justify-between border-b border-borde px-5 py-3 backdrop-blur-sm sm:px-7">
         <span className="flex items-center gap-2.5">
           <IresEye size={30} className="opacity-80" />
-          <span className="text-sm font-light tracking-[0.32em] text-white/80">ORis</span>
+          <span className="text-sm font-light tracking-[0.32em] text-tinta-2">ORis</span>
         </span>
-        <StatusBadge />
+        <span className="flex items-center gap-1.5">
+          <Tema />
+          <StatusBadge />
+        </span>
       </header>
 
       {/*
@@ -64,7 +68,7 @@ export function AppShell({ movimientos = [], extractos = [], motivoVacio }: AppS
         plano no hay jerarquia — todo queda al mismo nivel que el fondo — y una
         herramienta financiera se lee, no se contempla.
       */}
-      <div className="flex min-h-0 flex-1 flex-col bg-[#060C1C]/72 backdrop-blur-2xl md:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col bg-plano backdrop-blur-2xl md:flex-row">
         <FinanceSidebar seccion={seccion} onSeccion={setSeccion} pendientes={pendientes} />
 
         {seccion === 'extractos' ? (
@@ -73,7 +77,7 @@ export function AppShell({ movimientos = [], extractos = [], motivoVacio }: AppS
           <Revision movimientos={movimientos} />
         ) : seccion === 'movimientos' ? (
           <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-            <h2 className="mb-4 text-sm font-light tracking-wide text-white/70">
+            <h2 className="mb-4 text-sm font-light tracking-wide text-tinta-2">
               Todos los movimientos
             </h2>
             <ListaMovimientos movimientos={movimientos} />

@@ -27,8 +27,16 @@
  *     contraste sobre fondo  PASS   ambos ≥ 3:1
  */
 
-/** Tono único de las barras del desglose. Azul analítico, familia de IRES. */
-export const BARRA = '#2D96F0';
+/**
+ * Tono único de las barras del desglose. Azul analítico, familia de IRES.
+ *
+ * Es una variable CSS y no un hexadecimal porque **el tema claro necesita otro
+ * azul**: el de arriba (#2D96F0) se queda en 2,96:1 sobre fondo claro, por
+ * debajo del mínimo de 3:1, y una barra que no se distingue del papel no es una
+ * barra. Los dos tonos viven en `globals.css` y los dos pasan el validador
+ * contra su propio fondo.
+ */
+export const BARRA = 'var(--serie)';
 
 /**
  * Ámbar de aviso para «Sin categorizar».
@@ -37,10 +45,10 @@ export const BARRA = '#2D96F0';
  * por eso lleva color propio. Nunca va solo: siempre acompañado de su etiqueta,
  * porque el color por sí mismo no debe ser el único portador del significado.
  */
-export const PENDIENTE = '#BF8228';
+export const PENDIENTE = 'var(--pendiente)';
 
-/** Superficie del panel, en la línea del fondo espacial de IRES. */
-export const SUPERFICIE = 'rgba(255,255,255,0.035)';
+/** Superficie del panel. */
+export const SUPERFICIE = 'var(--superficie)';
 
 /** Separación entre barras contiguas, en píxeles. Deja ver el fondo entre marcas. */
 export const HUECO_BARRAS = 2;

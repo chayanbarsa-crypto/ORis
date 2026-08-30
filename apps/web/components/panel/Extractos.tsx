@@ -26,10 +26,10 @@ export function Extractos({ extractos }: ExtractosProps) {
   if (extractos.length === 0) {
     return (
       <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-        <h2 className="mb-4 text-sm font-light tracking-wide text-white/70">Extractos</h2>
-        <div className="max-w-md rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-7">
-          <p className="text-sm text-white/60">Todavía no has subido ninguno.</p>
-          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-white/35">
+        <h2 className="mb-4 text-sm font-light tracking-wide text-tinta-2">Extractos</h2>
+        <div className="max-w-md rounded-2xl border border-borde bg-superficie px-6 py-7">
+          <p className="text-sm text-tinta-3">Todavía no has subido ninguno.</p>
+          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-tinta-4">
             Suéltale un PDF, un Excel o un CSV a ORis en el panel de la derecha. Si
             tu banco ofrece Excel, usa ése: se lee sin pasar por el modelo, es
             exacto y no cuesta nada.
@@ -45,23 +45,23 @@ export function Extractos({ extractos }: ExtractosProps) {
 
   return (
     <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-      <h2 className="mb-4 text-sm font-light tracking-wide text-white/70">Extractos</h2>
+      <h2 className="mb-4 text-sm font-light tracking-wide text-tinta-2">Extractos</h2>
 
       {/* --- El último, que es el que responde a «¿por dónde iba?» --------- */}
-      <div className="mb-6 rounded-2xl border border-white/[0.09] bg-white/[0.03] px-5 py-4">
-        <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/35">Último importado</p>
-        <p className="mt-1.5 text-base text-white/90">
+      <div className="mb-6 rounded-2xl border border-borde-2 bg-superficie px-5 py-4">
+        <p className="text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">Último importado</p>
+        <p className="mt-1.5 text-base text-tinta">
           {tituloExtracto(ultimo.banco, ultimo.periodoInicio, ultimo.periodoFin)}
         </p>
-        <p className="mt-1 text-[0.78rem] text-white/45">
+        <p className="mt-1 text-[0.78rem] text-tinta-4">
           <span className="tabular-nums">{ultimo.movimientos}</span> movimientos ·{' '}
           {haceCuanto(ultimo.subidoEn)} · {ultimo.nombreFichero}
         </p>
 
         {cobertura ? (
-          <p className="mt-3 border-t border-white/[0.07] pt-3 text-[0.78rem] leading-relaxed text-white/55">
-            Tienes cargado desde <strong className="font-normal text-white/85">{cobertura.desde}</strong>{' '}
-            hasta <strong className="font-normal text-white/85">{cobertura.hasta}</strong>. Para
+          <p className="mt-3 border-t border-borde pt-3 text-[0.78rem] leading-relaxed text-tinta-3">
+            Tienes cargado desde <strong className="font-normal text-tinta-2">{cobertura.desde}</strong>{' '}
+            hasta <strong className="font-normal text-tinta-2">{cobertura.hasta}</strong>. Para
             continuar, descarga del banco a partir de esa última fecha — y si te
             pasas y solapas, no importa: los repetidos no se cuentan dos veces.
           </p>
@@ -71,27 +71,27 @@ export function Extractos({ extractos }: ExtractosProps) {
       {/* --- Todos, por banco --------------------------------------------- */}
       {porBanco.map(([banco, suyos]) => (
         <div key={banco} className="mb-5">
-          <h3 className="mb-2 flex items-baseline gap-2 text-[0.6rem] uppercase tracking-[0.2em] text-white/40">
+          <h3 className="mb-2 flex items-baseline gap-2 text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">
             {banco}
-            <span className="text-white/25">
+            <span className="text-tinta-5">
               {suyos.length} {suyos.length === 1 ? 'extracto' : 'extractos'}
             </span>
           </h3>
-          <ul className="overflow-hidden rounded-xl border border-white/[0.07]">
+          <ul className="overflow-hidden rounded-xl border border-borde">
             {suyos.map((e, i) => (
               <li
                 key={e.id}
                 className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 ${
-                  i > 0 ? 'border-t border-white/[0.05]' : ''
-                } ${e.id === ultimo.id ? 'bg-white/[0.03]' : ''}`}
+                  i > 0 ? 'border-t border-borde' : ''
+                } ${e.id === ultimo.id ? 'bg-superficie' : ''}`}
               >
-                <span className="text-[0.84rem] text-white/75">
+                <span className="text-[0.84rem] text-tinta-2">
                   {e.periodoInicio && e.periodoFin
                     ? periodoCorto(e.periodoInicio, e.periodoFin)
                     : 'Periodo no declarado'}
                 </span>
-                <span className="text-[0.74rem] text-white/35">{e.nombreFichero}</span>
-                <span className="ml-auto text-[0.78rem] tabular-nums text-white/55">
+                <span className="text-[0.74rem] text-tinta-4">{e.nombreFichero}</span>
+                <span className="ml-auto text-[0.78rem] tabular-nums text-tinta-3">
                   {e.movimientos}
                 </span>
               </li>
@@ -112,7 +112,7 @@ export function Extractos({ extractos }: ExtractosProps) {
       ))}
 
       {resto.length === 0 ? null : (
-        <p className="mt-4 text-[0.74rem] leading-relaxed text-white/25">
+        <p className="mt-4 text-[0.74rem] leading-relaxed text-tinta-5">
           Un extracto que ya esté entero no vuelve a entrar, aunque el fichero sea
           distinto: la comparación es movimiento a movimiento, no por nombre.
         </p>

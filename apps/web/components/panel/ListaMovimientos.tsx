@@ -24,7 +24,7 @@ const ORIGEN: Record<string, { texto: string; titulo: string }> = {
 export function ListaMovimientos({ movimientos }: { movimientos: readonly MovimientoVista[] }) {
   if (movimientos.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-white/35">
+      <p className="rounded-xl border border-dashed border-borde-2 px-4 py-6 text-center text-sm text-tinta-4">
         Sin movimientos en este periodo.
       </p>
     );
@@ -35,7 +35,7 @@ export function ListaMovimientos({ movimientos }: { movimientos: readonly Movimi
       <table className="w-full min-w-[34rem] border-collapse text-sm">
         <caption className="sr-only">Movimientos del periodo seleccionado</caption>
         <thead>
-          <tr className="text-left text-[0.6rem] uppercase tracking-[0.18em] text-white/35">
+          <tr className="text-left text-[0.6rem] uppercase tracking-[0.18em] text-tinta-4">
             <th scope="col" className="pb-2 pr-3 font-normal">Fecha</th>
             <th scope="col" className="pb-2 pr-3 font-normal">Concepto</th>
             <th scope="col" className="pb-2 pr-3 font-normal">Categoría</th>
@@ -52,16 +52,16 @@ export function ListaMovimientos({ movimientos }: { movimientos: readonly Movimi
             const negativo = centimos !== null && centimos < 0;
 
             return (
-              <tr key={m.id} className="border-t border-white/[0.05] align-top">
-                <td className="py-2 pr-3 tabular-nums text-white/45">{m.fecha}</td>
-                <td className="py-2 pr-3 text-white/75">{m.concepto}</td>
+              <tr key={m.id} className="border-t border-borde align-top">
+                <td className="py-2 pr-3 tabular-nums text-tinta-4">{m.fecha}</td>
+                <td className="py-2 pr-3 text-tinta-2">{m.concepto}</td>
                 <td className="py-2 pr-3">
                   {m.categoria ? (
-                    <span className={traspaso ? 'text-white/40' : 'text-white/60'}>
+                    <span className={traspaso ? 'text-tinta-4' : 'text-tinta-3'}>
                       {m.categoria}
                       {marca ? (
                         <span
-                          className="ml-1.5 text-[0.6rem] uppercase tracking-wider text-white/30"
+                          className="ml-1.5 text-[0.6rem] uppercase tracking-wider text-tinta-5"
                           title={marca.titulo}
                         >
                           {marca.texto}
@@ -69,17 +69,17 @@ export function ListaMovimientos({ movimientos }: { movimientos: readonly Movimi
                       ) : null}
                     </span>
                   ) : (
-                    <span className="text-white/30">sin categorizar</span>
+                    <span className="text-tinta-5">sin categorizar</span>
                   )}
                 </td>
                 <td
                   className={`py-2 text-right tabular-nums ${
-                    traspaso ? 'text-white/35' : negativo ? 'text-white/70' : 'text-white/85'
+                    traspaso ? 'text-tinta-4' : negativo ? 'text-tinta-2' : 'text-tinta-2'
                   }`}
                   title={traspaso ? 'Traspaso entre cuentas propias: ni ingreso ni gasto' : undefined}
                 >
                   {centimos === null ? (
-                    <span className="text-white/30" title={`Importe ilegible: ${m.importe}`}>
+                    <span className="text-tinta-5" title={`Importe ilegible: ${m.importe}`}>
                       —
                     </span>
                   ) : (

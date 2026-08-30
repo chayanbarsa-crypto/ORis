@@ -2,8 +2,268 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Los colores, en un solo sitio.
+  ==============================
+
+  Antes había 258 alfas de blanco repartidas por veinte archivos —«text-white/70»,
+  «border-white/[0.07]»— y treinta hexadecimales sueltos. Eso no es un tema: es
+  el mismo color escrito muchas veces, y cambiarlo obligaba a encontrar las 258.
+  Aquí hay una escala con nombre, y cada nombre significa un papel, no un tono:
+  «tinta-3» es texto terciario, y en claro será oscuro y en oscuro será claro.
+
+  Tres estados, no dos. Una elección explícita marca `data-tema` en el `html`; sin
+  elección, manda el sistema operativo por `prefers-color-scheme`. Por eso la
+  paleta clara se declara dos veces: en el `@media` para quien no ha elegido, y
+  en `[data-tema="claro"]` para quien sí. Si sólo estuviera en el `@media`, el
+  botón no podría poner claro sobre un sistema oscuro.
+
+  Los colores llevan el alfa dentro. Se pierde el modificador de Tailwind
+  (`text-tinta/50`), y a cambio se gana lo que importa: que el mismo nombre
+  resuelva a dos colores distintos sin que ningún componente se entere.
+*/
+
 :root {
   color-scheme: dark;
+
+  /* Fondo bajo el cielo estrellado. */
+  --fondo: #040814;
+  /* El plano de datos: se apoya sobre las estrellas sin taparlas del todo. */
+  --plano: rgba(6, 12, 28, 0.72);
+
+  --superficie:   rgba(255, 255, 255, 0.025);
+  --superficie-2: rgba(255, 255, 255, 0.05);
+  --superficie-3: rgba(255, 255, 255, 0.085);
+
+  --borde:   rgba(255, 255, 255, 0.07);
+  --borde-2: rgba(255, 255, 255, 0.11);
+  --borde-3: rgba(255, 255, 255, 0.18);
+  --borde-4: rgba(255, 255, 255, 0.28);
+
+  --tinta:   rgba(255, 255, 255, 0.9);
+  --tinta-2: rgba(255, 255, 255, 0.75);
+  --tinta-3: rgba(255, 255, 255, 0.6);
+  --tinta-4: rgba(255, 255, 255, 0.4);
+  --tinta-5: rgba(255, 255, 255, 0.25);
+
+  /* Gráficos. Validados contra su fondo: banda de luminosidad, croma,
+     separación en daltonismo y contraste. Ver lib/oris/paleta.ts. */
+  --serie:     #2D96F0;
+  --pendiente: #BF8228;
+  --bien:      #0E9E70;
+  --mal:       #E06C5A;
+  /* Fondo del globo del gráfico y del cero del eje. */
+  --globo: #030711;
+  --eje:   #2A3B58;
+
+  /* Los dos halos del fondo, arriba y abajo. */
+  --halo-1: #0b1832;
+  --halo-2: #0a1226;
+
+  /* El emblema no se toca en oscuro: sus colores están hechos para brillar
+     sobre el cielo. */
+  --emblema: none;
+
+  /* Controles: un desplegable necesita fondo opaco o se le ve el cielo detrás. */
+  --control: #0A1224;
+
+  /* Avisos. Van con su propio fondo y borde porque el color con alfa de
+     Tailwind (`bg-[#BF8228]/20`) no funciona sobre una variable, y porque un
+     aviso es un estado con tres tonos, no un color suelto. */
+  --aviso-fondo:  rgba(191, 130, 40, 0.07);
+  --aviso-borde:  rgba(191, 130, 40, 0.32);
+  --aviso-tinta:  #E0A54A;
+  --bien-fondo:   rgba(14, 158, 112, 0.07);
+  --bien-borde:   rgba(14, 158, 112, 0.28);
+  --serie-fondo:  rgba(45, 150, 240, 0.16);
+  --serie-borde:  rgba(45, 150, 240, 0.45);
+}
+
+
+/*
+  La puerta es siempre de noche.
+
+  El tema claro vale para el escritorio —la pantalla donde se trabaja— y no para
+  la entrada: la constelación es un cielo, y sobre un fondo pálido las estrellas
+  desaparecen y las líneas que hay que unir se quedan en un gris ilegible. Se
+  entra de noche y se llega a una habitación con luz, que además es lo que la
+  entrada cuenta.
+
+  Se redeclaran los tokens en la clase en vez de tocar `:root` para no depender
+  de `:has()`: si no estuviera soportado, la regla se caería entera y el tema
+  claro dejaría de funcionar en todas partes por culpa de una pantalla.
+*/
+.tema-oscuro {
+  color-scheme: dark;
+
+  color-scheme: dark;
+
+  /* Fondo bajo el cielo estrellado. */
+  --fondo: #040814;
+  /* El plano de datos: se apoya sobre las estrellas sin taparlas del todo. */
+  --plano: rgba(6, 12, 28, 0.72);
+
+  --superficie:   rgba(255, 255, 255, 0.025);
+  --superficie-2: rgba(255, 255, 255, 0.05);
+  --superficie-3: rgba(255, 255, 255, 0.085);
+
+  --borde:   rgba(255, 255, 255, 0.07);
+  --borde-2: rgba(255, 255, 255, 0.11);
+  --borde-3: rgba(255, 255, 255, 0.18);
+  --borde-4: rgba(255, 255, 255, 0.28);
+
+  --tinta:   rgba(255, 255, 255, 0.9);
+  --tinta-2: rgba(255, 255, 255, 0.75);
+  --tinta-3: rgba(255, 255, 255, 0.6);
+  --tinta-4: rgba(255, 255, 255, 0.4);
+  --tinta-5: rgba(255, 255, 255, 0.25);
+
+  /* Gráficos. Validados contra su fondo: banda de luminosidad, croma,
+     separación en daltonismo y contraste. Ver lib/oris/paleta.ts. */
+  --serie:     #2D96F0;
+  --pendiente: #BF8228;
+  --bien:      #0E9E70;
+  --mal:       #E06C5A;
+  /* Fondo del globo del gráfico y del cero del eje. */
+  --globo: #030711;
+  --eje:   #2A3B58;
+
+  /* Los dos halos del fondo, arriba y abajo. */
+  --halo-1: #0b1832;
+  --halo-2: #0a1226;
+
+  /* El emblema no se toca en oscuro: sus colores están hechos para brillar
+     sobre el cielo. */
+  --emblema: none;
+
+  /* Controles: un desplegable necesita fondo opaco o se le ve el cielo detrás. */
+  --control: #0A1224;
+
+  /* Avisos. Van con su propio fondo y borde porque el color con alfa de
+     Tailwind (`bg-[#BF8228]/20`) no funciona sobre una variable, y porque un
+     aviso es un estado con tres tonos, no un color suelto. */
+  --aviso-fondo:  rgba(191, 130, 40, 0.07);
+  --aviso-borde:  rgba(191, 130, 40, 0.32);
+  --aviso-tinta:  #E0A54A;
+  --bien-fondo:   rgba(14, 158, 112, 0.07);
+  --bien-borde:   rgba(14, 158, 112, 0.28);
+  --serie-fondo:  rgba(45, 150, 240, 0.16);
+  --serie-borde:  rgba(45, 150, 240, 0.45);
+
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, var(--halo-1) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, var(--halo-2) 0%, transparent 55%),
+    var(--fondo);
+  color: var(--tinta);
+}
+
+/*
+  Tema claro.
+
+  No es el oscuro invertido. El cielo estrellado sigue detrás —es la identidad de
+  ORis y no se tira— pero el plano de datos pasa a ser casi opaco, así que las
+  estrellas sólo asoman por los bordes. El azul de los gráficos se oscurece: el
+  de arriba se queda en 2,96:1 sobre un fondo claro, por debajo del mínimo, y una
+  barra que no se distingue del papel no es una barra.
+*/
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema="oscuro"]) {
+    color-scheme: light;
+
+    --fondo: #F2F4F8;
+    --plano: rgba(252, 252, 253, 0.93);
+
+    --superficie:   rgba(15, 23, 42, 0.028);
+    --superficie-2: rgba(15, 23, 42, 0.055);
+    --superficie-3: rgba(15, 23, 42, 0.095);
+
+    --borde:   rgba(15, 23, 42, 0.1);
+    --borde-2: rgba(15, 23, 42, 0.16);
+    --borde-3: rgba(15, 23, 42, 0.24);
+    --borde-4: rgba(15, 23, 42, 0.36);
+
+    --tinta:   rgba(12, 20, 36, 0.94);
+    --tinta-2: rgba(12, 20, 36, 0.78);
+    --tinta-3: rgba(12, 20, 36, 0.62);
+    --tinta-4: rgba(12, 20, 36, 0.46);
+    --tinta-5: rgba(12, 20, 36, 0.3);
+
+    --serie:     #1E7FD0;
+    --pendiente: #A66C1E;
+    --bien:      #0B7D59;
+    --mal:       #C0463A;
+    --globo: #FFFFFF;
+    --eje:   #C3CCDA;
+
+    --halo-1: #DCE6F5;
+    --halo-2: #E8ECF4;
+
+    /* En claro sí. El ojo alado toma su color del estado de ánimo de ORis
+       —tonos luminosos pensados para un fondo negro— y sobre papel se queda en
+       un gris pálido. Se oscurece con un filtro en vez de darle una segunda
+       paleta: así sigue cambiando de color con el estado, que es lo que hace
+       que sea un emblema vivo y no un logotipo. */
+    --emblema: saturate(1.35) brightness(0.55);
+
+    --control: #FFFFFF;
+
+    --aviso-fondo:  rgba(166, 108, 30, 0.09);
+    --aviso-borde:  rgba(166, 108, 30, 0.35);
+    --aviso-tinta:  #8A5715;
+    --bien-fondo:   rgba(11, 125, 89, 0.08);
+    --bien-borde:   rgba(11, 125, 89, 0.3);
+    --serie-fondo:  rgba(30, 127, 208, 0.13);
+    --serie-borde:  rgba(30, 127, 208, 0.45);
+  }
+}
+
+:root[data-tema="claro"] {
+  color-scheme: light;
+
+  --fondo: #F2F4F8;
+  --plano: rgba(252, 252, 253, 0.93);
+
+  --superficie:   rgba(15, 23, 42, 0.028);
+  --superficie-2: rgba(15, 23, 42, 0.055);
+  --superficie-3: rgba(15, 23, 42, 0.095);
+
+  --borde:   rgba(15, 23, 42, 0.1);
+  --borde-2: rgba(15, 23, 42, 0.16);
+  --borde-3: rgba(15, 23, 42, 0.24);
+  --borde-4: rgba(15, 23, 42, 0.36);
+
+  --tinta:   rgba(12, 20, 36, 0.94);
+  --tinta-2: rgba(12, 20, 36, 0.78);
+  --tinta-3: rgba(12, 20, 36, 0.62);
+  --tinta-4: rgba(12, 20, 36, 0.46);
+  --tinta-5: rgba(12, 20, 36, 0.3);
+
+  --serie:     #1E7FD0;
+  --pendiente: #A66C1E;
+  --bien:      #0B7D59;
+  --mal:       #C0463A;
+  --globo: #FFFFFF;
+  --eje:   #C3CCDA;
+
+  --halo-1: #DCE6F5;
+  --halo-2: #E8ECF4;
+
+  /* En claro sí. El ojo alado toma su color del estado de ánimo de ORis
+     —tonos luminosos pensados para un fondo negro— y sobre papel se queda en
+     un gris pálido. Se oscurece con un filtro en vez de darle una segunda
+     paleta: así sigue cambiando de color con el estado, que es lo que hace
+     que sea un emblema vivo y no un logotipo. */
+  --emblema: saturate(1.35) brightness(0.55);
+
+  --control: #FFFFFF;
+
+  --aviso-fondo:  rgba(166, 108, 30, 0.09);
+  --aviso-borde:  rgba(166, 108, 30, 0.35);
+  --aviso-tinta:  #8A5715;
+  --bien-fondo:   rgba(11, 125, 89, 0.08);
+  --bien-borde:   rgba(11, 125, 89, 0.3);
+  --serie-fondo:  rgba(30, 127, 208, 0.13);
+  --serie-borde:  rgba(30, 127, 208, 0.45);
 }
 
 html,
@@ -15,10 +275,10 @@ body {
   /* El degradado vive en CSS y no en el canvas: es estatico y no merece
      repintarse 60 veces por segundo. */
   background:
-    radial-gradient(ellipse 120% 80% at 50% 0%, #0b1832 0%, transparent 60%),
-    radial-gradient(ellipse 100% 70% at 50% 100%, #0a1226 0%, transparent 55%),
-    #040814;
-  color: #e6edf7;
+    radial-gradient(ellipse 120% 80% at 50% 0%, var(--halo-1) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, var(--halo-2) 0%, transparent 55%),
+    var(--fondo);
+  color: var(--tinta);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
@@ -45,4 +305,9 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* El emblema, ajustado al tema. Ver `--emblema`. */
+svg[aria-label='IRES'] {
+  filter: var(--emblema);
 }

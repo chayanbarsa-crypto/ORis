@@ -27,7 +27,7 @@ import type { MovimientoVista } from '@/lib/oris/agregados';
 import { BARRA } from '@/lib/oris/paleta';
 
 /** El tono de la proyección. Ámbar, ya validado contra el azul de las barras. */
-const PROYECTADO = '#BF8228';
+const PROYECTADO = 'var(--pendiente)';
 
 const ALTO = 190;
 const MARGEN = { arriba: 16, abajo: 30, izquierda: 54, derecha: 14 };
@@ -92,8 +92,8 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
 
   if (serie.length === 0) {
     return (
-      <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-5 py-6">
-        <p className="text-[0.82rem] text-white/40">
+      <div className="rounded-xl border border-borde bg-superficie px-5 py-6">
+        <p className="text-[0.82rem] text-tinta-4">
           Hará falta al menos un mes de movimientos para dibujar la línea.
         </p>
       </div>
@@ -109,16 +109,16 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
   const p = activo !== null ? puntos[activo] : null;
 
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-5 py-4">
+    <div className="rounded-xl border border-borde bg-superficie px-5 py-4">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h3 className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">
+        <h3 className="text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">
           Variación acumulada
         </h3>
         {/* El periodo lo escribe quien filtra (`Historico`), no el gráfico:
             aquí no se sabe si esto es todo el histórico o un recorte, y decir
             «desde el primer movimiento» cuando hay un filtro puesto sería
             falso. */}
-        <p className="text-[0.74rem] text-white/35">{resumenPeriodo(serie)}</p>
+        <p className="text-[0.74rem] text-tinta-4">{resumenPeriodo(serie)}</p>
       </div>
 
       <div ref={contenedor} className="relative">
@@ -137,7 +137,7 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
               y1={cero}
               x2={ancho - MARGEN.derecha}
               y2={cero}
-              stroke="#2A3B58"
+              stroke="var(--eje)"
               strokeWidth="1"
             />
           ) : null}
@@ -165,18 +165,18 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
           {/* Sólo el extremo lleva punto: marcarlos todos convierte la línea en
               un collar y esconde la forma, que es lo que hay que leer. */}
           {ultimoReal ? (
-            <circle cx={ultimoReal.x} cy={ultimoReal.y} r="4.5" fill={BARRA} stroke="#060C1C" strokeWidth="2" />
+            <circle cx={ultimoReal.x} cy={ultimoReal.y} r="4.5" fill={BARRA} stroke="var(--globo)" strokeWidth="2" />
           ) : null}
           {p ? <circle cx={p.x} cy={p.y} r="4" fill={p.real ? BARRA : PROYECTADO} /> : null}
 
           {/* Etiquetas de los extremos y del cero. */}
-          <g fontFamily="ui-monospace, monospace" fontSize="10" fill="#6F82A0">
+          <g fontFamily="ui-monospace, monospace" fontSize="10" fill="var(--tinta-4)">
             {cero !== null ? <text x="4" y={cero + 3}>0 €</text> : null}
             <text x="4" y={puntos[0].y + 3}>{corto(puntos[0].valor)}</text>
             {ultimoReal ? <text x="4" y={ultimoReal.y + 3}>{corto(ultimoReal.valor)}</text> : null}
           </g>
 
-          <g fontFamily="ui-monospace, monospace" fontSize="10" fill="#6F82A0" textAnchor="middle">
+          <g fontFamily="ui-monospace, monospace" fontSize="10" fill="var(--tinta-4)" textAnchor="middle">
             <text x={puntos[0].x} y={ALTO - 10}>{etiquetaMes(puntos[0].mes)}</text>
             {ultimoReal ? (
               <text x={ultimoReal.x} y={ALTO - 10}>{etiquetaMes(ultimoReal.mes)}</text>
@@ -213,19 +213,19 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
 
         {p ? (
           <div
-            className="pointer-events-none absolute rounded-lg border border-white/[0.15] bg-[#030711] px-3 py-2 text-[0.74rem] leading-relaxed text-white/85"
+            className="pointer-events-none absolute rounded-lg border border-borde-3 bg-[var(--globo)] px-3 py-2 text-[0.74rem] leading-relaxed text-tinta-2"
             style={{
               left: `${(p.x / ancho) * 100}%`,
               top: 0,
               transform: 'translate(-50%, -8px)',
             }}
           >
-            <span className="text-white/40">{nombreLargo(p.mes)}</span>
-            {p.real ? null : <span className="text-[#BF8228]"> · proyectado</span>}
+            <span className="text-tinta-4">{nombreLargo(p.mes)}</span>
+            {p.real ? null : <span className="text-pendiente"> · proyectado</span>}
             <br />
             <span className="tabular-nums">{formatear(p.valor, { signo: true })}</span>
             {p.neto !== null ? (
-              <span className="text-white/40">
+              <span className="text-tinta-4">
                 {' '}
                 · {p.real ? 'este mes' : 'al mes'} {formatear(p.neto, { signo: true })}
               </span>
@@ -234,7 +234,7 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
         ) : null}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[0.74rem] text-white/45">
+      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[0.74rem] text-tinta-4">
         <span className="flex items-center gap-2">
           <i className="h-[2px] w-4" style={{ background: BARRA }} /> Lo que ha pasado
         </span>
@@ -250,7 +250,7 @@ export function LineaTiempo({ movimientos, mesesProyectados = 4 }: LineaTiempoPr
       </div>
 
       {proyeccion ? (
-        <p className="mt-2 text-[0.72rem] leading-relaxed text-white/25">
+        <p className="mt-2 text-[0.72rem] leading-relaxed text-tinta-5">
           La proyección prolonga una media: no sabe de pagas extra, ni de que
           enero es caro, ni de que has dejado un cliente. Contesta a «si nada
           cambia», y a nada más.

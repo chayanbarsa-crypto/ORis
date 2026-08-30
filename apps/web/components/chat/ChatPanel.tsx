@@ -23,7 +23,7 @@ export function ChatPanel() {
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col border-t border-white/[0.07] md:border-l md:border-t-0"
+      className="flex min-h-0 flex-1 flex-col border-t border-borde md:border-l md:border-t-0"
       aria-label="Conversación con ORis"
     >
       <div className="flex items-center gap-2.5 px-5 py-3">
@@ -31,7 +31,7 @@ export function ChatPanel() {
             la cara de quien responde, no un adorno. Hereda el color del estado,
             asi que cambia con el animo de la constelacion sin tocar nada. */}
         <IresEye size={26} />
-        <span className="text-[0.58rem] uppercase tracking-[0.26em] text-white/35">Copiloto</span>
+        <span className="text-[0.58rem] uppercase tracking-[0.26em] text-tinta-4">Copiloto</span>
       </div>
 
       {subir ? (
@@ -42,7 +42,7 @@ export function ChatPanel() {
         <button
           type="button"
           onClick={() => setSubir(true)}
-          className="mx-5 mb-1 rounded-lg border border-dashed border-white/[0.1] px-3 py-1.5 text-[0.72rem] text-white/35 transition-colors hover:border-white/25 hover:text-white/60"
+          className="mx-5 mb-1 rounded-lg border border-dashed border-borde-2 px-3 py-1.5 text-[0.72rem] text-tinta-4 transition-colors hover:border-borde-4 hover:text-tinta-3"
         >
           Subir otro extracto
         </button>

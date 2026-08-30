@@ -41,10 +41,10 @@ export interface FinanceSidebarProps {
 export function FinanceSidebar({ seccion, onSeccion, pendientes = 0 }: FinanceSidebarProps) {
   return (
     <nav
-      className="shrink-0 border-b border-white/[0.07] px-5 py-4 md:w-52 md:border-b-0 md:border-r md:py-6"
+      className="shrink-0 border-b border-borde px-5 py-4 md:w-52 md:border-b-0 md:border-r md:py-6"
       aria-label="Secciones de ORis"
     >
-      <p className="mb-3 text-[0.58rem] uppercase tracking-[0.26em] text-white/30">Finanzas</p>
+      <p className="mb-3 text-[0.58rem] uppercase tracking-[0.26em] text-tinta-5">Finanzas</p>
       <ul className="flex gap-2 overflow-x-auto md:flex-col md:gap-1 md:overflow-visible">
         {SECCIONES.map((s) => (
           <li key={s.id} className="shrink-0">
@@ -56,10 +56,10 @@ export function FinanceSidebar({ seccion, onSeccion, pendientes = 0 }: FinanceSi
               title={s.nota}
               className={`w-full whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                 seccion === s.id
-                  ? 'bg-white/[0.07] text-white/90'
+                  ? 'bg-superficie-3 text-tinta'
                   : s.activa
-                    ? 'text-white/60 hover:bg-white/[0.04] hover:text-white/85'
-                    : 'cursor-not-allowed text-white/25'
+                    ? 'text-tinta-3 hover:bg-superficie-2 hover:text-tinta-2'
+                    : 'cursor-not-allowed text-tinta-5'
               }`}
             >
               <span className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export function FinanceSidebar({ seccion, onSeccion, pendientes = 0 }: FinanceSi
                 */}
                 {s.id === 'categorias' && pendientes > 0 ? (
                   <span
-                    className="flex items-center gap-1 rounded-full bg-[#BF8228]/20 px-1.5 py-0.5 text-[0.62rem] tabular-nums text-[#E0A54A]"
+                    className="flex items-center gap-1 rounded-full bg-aviso-fondo px-1.5 py-0.5 text-[0.62rem] tabular-nums text-aviso-tinta"
                     title={`${pendientes} sin categorizar`}
                   >
                     <svg width="9" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

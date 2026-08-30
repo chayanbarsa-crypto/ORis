@@ -84,7 +84,7 @@ export function Historico({ movimientos, extractos = [] }: HistoricoProps) {
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h3 className="mr-auto text-[0.6rem] uppercase tracking-[0.2em] text-white/40">
+        <h3 className="mr-auto text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">
           Histórico
         </h3>
 
@@ -92,12 +92,12 @@ export function Historico({ movimientos, extractos = [] }: HistoricoProps) {
             responder al teclado, a cerrar al salir y a leerse en voz alta; el
             del navegador ya lo hace y además abre bien en el móvil. */}
         {bancos.length > 1 ? (
-          <label className="flex items-center gap-1.5 text-[0.72rem] text-white/40">
+          <label className="flex items-center gap-1.5 text-[0.72rem] text-tinta-4">
             <span className="sr-only">Banco</span>
             <select
               value={bancoActivo}
               onChange={(e) => setBanco(e.target.value)}
-              className="rounded-lg border border-white/[0.12] bg-[#0A1224] px-2.5 py-1 text-[0.74rem] text-white/75 outline-none focus:border-white/35"
+              className="rounded-lg border border-borde-2 bg-control px-2.5 py-1 text-[0.74rem] text-tinta-2 outline-none focus:border-borde-4"
             >
               <option value={TODOS}>Todos los bancos</option>
               {bancos.map((b) => (
@@ -109,16 +109,16 @@ export function Historico({ movimientos, extractos = [] }: HistoricoProps) {
             </select>
           </label>
         ) : bancos.length === 1 ? (
-          <span className="text-[0.72rem] text-white/40">{bancos[0]}</span>
+          <span className="text-[0.72rem] text-tinta-4">{bancos[0]}</span>
         ) : null}
 
         {rangos.length > 1 ? (
-          <label className="flex items-center gap-1.5 text-[0.72rem] text-white/40">
+          <label className="flex items-center gap-1.5 text-[0.72rem] text-tinta-4">
             <span className="sr-only">Periodo</span>
             <select
               value={rango?.clave ?? 'todo'}
               onChange={(e) => setClave(e.target.value as ClaveRango)}
-              className="rounded-lg border border-white/[0.12] bg-[#0A1224] px-2.5 py-1 text-[0.74rem] text-white/75 outline-none focus:border-white/35"
+              className="rounded-lg border border-borde-2 bg-control px-2.5 py-1 text-[0.74rem] text-tinta-2 outline-none focus:border-borde-4"
             >
               {rangos.map((r) => (
                 <option key={r.clave} value={r.clave}>
@@ -134,7 +134,7 @@ export function Historico({ movimientos, extractos = [] }: HistoricoProps) {
           cuáles son cuando los datos no llegan hasta hoy — que es justo el
           caso en el que uno se equivoca leyendo el gráfico. */}
       {periodo ? (
-        <p className="text-[0.72rem] text-white/30">
+        <p className="text-[0.72rem] text-tinta-5">
           {periodo}
           {bancoActivo !== TODOS
             ? ` · sólo ${bancoActivo}`
@@ -145,7 +145,7 @@ export function Historico({ movimientos, extractos = [] }: HistoricoProps) {
       ) : null}
 
       {visibles.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-[0.8rem] text-white/35">
+        <p className="rounded-xl border border-dashed border-borde-2 px-4 py-6 text-center text-[0.8rem] text-tinta-4">
           No hay movimientos en este periodo{bancoActivo !== TODOS ? ` de ${bancoActivo}` : ''}.
         </p>
       ) : (

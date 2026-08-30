@@ -112,7 +112,7 @@ export function PinPad({ onUnlock }: PinPadProps) {
 
   return (
     <motion.div
-      className="w-[min(20rem,88vw)] rounded-3xl border border-white/[0.09] bg-white/[0.03] p-6 backdrop-blur-xl"
+      className="w-[min(20rem,88vw)] rounded-3xl border border-borde-2 bg-superficie p-6 backdrop-blur-xl"
       initial={{ opacity: 0, y: 18, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.55, ease: 'easeOut' }}
@@ -123,7 +123,7 @@ export function PinPad({ onUnlock }: PinPadProps) {
         {/* Ya no es «acceso alternativo»: era el respaldo del patrón cuando
             el patrón abría, y ahora el patrón sólo despierta. Esto es la
             cerradura. */}
-        <p className="mt-1 text-[0.6rem] uppercase tracking-[0.3em] text-white/40">
+        <p className="mt-1 text-[0.6rem] uppercase tracking-[0.3em] text-tinta-4">
           Tu PIN
         </p>
       </div>
@@ -162,7 +162,7 @@ export function PinPad({ onUnlock }: PinPadProps) {
               key={i}
               type="button"
               onClick={() => press(k)}
-              className="h-16 rounded-2xl border border-white/[0.07] bg-white/[0.02] text-lg font-light text-white/80 transition-colors active:bg-white/[0.09] md:hover:bg-white/[0.06]"
+              className="h-16 rounded-2xl border border-borde bg-superficie text-lg font-light text-tinta-2 transition-colors active:bg-superficie-3 md:hover:bg-superficie-2"
               aria-label={k === '⌫' ? 'Borrar' : k}
             >
               {k}
@@ -171,7 +171,7 @@ export function PinPad({ onUnlock }: PinPadProps) {
         )}
       </div>
 
-      <p className="mt-5 text-center text-[0.66rem] leading-relaxed text-white/25">
+      <p className="mt-5 text-center text-[0.66rem] leading-relaxed text-tinta-5">
         {comprobando ? 'Comprobando…' : (aviso ?? 'Introduce tu PIN para despertar a ORis')}
       </p>
     </motion.div>

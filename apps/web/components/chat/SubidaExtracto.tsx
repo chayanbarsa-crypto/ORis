@@ -145,7 +145,7 @@ export function SubidaExtracto() {
   return (
     <div
       className={`flex flex-col gap-3 rounded-xl border border-dashed p-3 transition-colors ${
-        encima ? 'border-white/30 bg-white/[0.04]' : 'border-transparent'
+        encima ? 'border-borde-4 bg-superficie-2' : 'border-transparent'
       }`}
       // `onDragOver` tiene que llamar a preventDefault o el navegador abre el
       // fichero en una pestaña nueva en vez de dejarlo caer aquí.
@@ -165,10 +165,10 @@ export function SubidaExtracto() {
       {resultado ? <Respuesta resultado={resultado} /> : null}
 
       {subiendo ? (
-        <p className="text-[0.72rem] leading-relaxed text-white/45">
-          Leyendo <span className="text-white/70">{subiendo}</span>… {segundos}s
+        <p className="text-[0.72rem] leading-relaxed text-tinta-4">
+          Leyendo <span className="text-tinta-2">{subiendo}</span>… {segundos}s
           <br />
-          <span className="text-white/30">
+          <span className="text-tinta-5">
             {/* Un tabular tarda milisegundos; un PDF, minutos. Decirlo evita
                 que parezca colgado justo cuando está trabajando. */}
             {/\.pdf$/i.test(subiendo)
@@ -193,7 +193,7 @@ export function SubidaExtracto() {
         type="button"
         disabled={Boolean(subiendo)}
         onClick={() => entrada.current?.click()}
-        className="flex items-center gap-2 self-start rounded-lg border border-white/[0.1] bg-white/[0.03] px-3 py-2 text-[0.78rem] text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white/90 disabled:cursor-not-allowed disabled:text-white/25"
+        className="flex items-center gap-2 self-start rounded-lg border border-borde-2 bg-superficie px-3 py-2 text-[0.78rem] text-tinta-2 transition-colors hover:bg-superficie-2 hover:text-tinta disabled:cursor-not-allowed disabled:text-tinta-5"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
           <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -202,7 +202,7 @@ export function SubidaExtracto() {
       </button>
 
       {!subiendo ? (
-        <p className="text-[0.68rem] text-white/20">
+        <p className="text-[0.68rem] text-tinta-5">
           O arrastra el fichero hasta aquí.
         </p>
       ) : null}
@@ -214,26 +214,26 @@ function Respuesta({ resultado }: { resultado: Resultado }) {
   if (resultado.tipo === 'guardado') {
     const { duplicado, movimientos, solapados, banco, categorizados, sinCategorizar } = resultado;
     return (
-      <div className="rounded-xl border border-white/[0.09] bg-white/[0.02] px-3.5 py-3 text-[0.76rem] leading-relaxed text-white/60">
+      <div className="rounded-xl border border-borde-2 bg-superficie px-3.5 py-3 text-[0.76rem] leading-relaxed text-tinta-3">
         {duplicado ? (
           <p>
             Este extracto ya estaba guardado, con sus{' '}
-            <strong className="font-normal text-white/85">{movimientos}</strong> movimientos. No he
+            <strong className="font-normal text-tinta-2">{movimientos}</strong> movimientos. No he
             duplicado nada.
           </p>
         ) : (
           <>
             <p>
-              Guardado: <strong className="font-normal text-white/85">{movimientos}</strong>{' '}
+              Guardado: <strong className="font-normal text-tinta-2">{movimientos}</strong>{' '}
               movimientos{banco ? ` de ${banco}` : ''}. El cuadre sale.
             </p>
             {solapados > 0 ? (
               <p className="mt-1.5">
-                <strong className="font-normal text-white/85">{solapados}</strong> ya los tenía de
+                <strong className="font-normal text-tinta-2">{solapados}</strong> ya los tenía de
                 un extracto anterior, así que no los he vuelto a contar.
               </p>
             ) : null}
-            <p className="mt-1.5 text-white/40">
+            <p className="mt-1.5 text-tinta-4">
               {categorizados} categorizados por reglas
               {sinCategorizar > 0 ? `, ${sinCategorizar} pendientes de revisar` : ''}.
             </p>
@@ -245,13 +245,13 @@ function Respuesta({ resultado }: { resultado: Resultado }) {
 
   if (resultado.tipo === 'rechazado') {
     return (
-      <div className="rounded-xl border border-[#BF8228]/35 bg-[#BF8228]/[0.07] px-3.5 py-3 text-[0.76rem] leading-relaxed text-white/70">
-        <p className="text-white/85">No lo he guardado.</p>
+      <div className="rounded-xl border border-aviso-borde bg-aviso-fondo px-3.5 py-3 text-[0.76rem] leading-relaxed text-tinta-2">
+        <p className="text-tinta-2">No lo he guardado.</p>
         <p className="mt-1.5">{resultado.mensaje}</p>
         {resultado.evidencia ? (
-          <p className="mt-1.5 text-white/45">{resultado.evidencia}</p>
+          <p className="mt-1.5 text-tinta-4">{resultado.evidencia}</p>
         ) : null}
-        <p className="mt-1.5 text-white/45">
+        <p className="mt-1.5 text-tinta-4">
           {resultado.sugerencia ||
             'Prefiero no guardar nada a guardar unas cuentas que no cuadran.'}
         </p>
@@ -260,10 +260,10 @@ function Respuesta({ resultado }: { resultado: Resultado }) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.09] bg-white/[0.02] px-3.5 py-3 text-[0.76rem] leading-relaxed text-white/60">
-      <p className="text-white/80">{resultado.mensaje}</p>
+    <div className="rounded-xl border border-borde-2 bg-superficie px-3.5 py-3 text-[0.76rem] leading-relaxed text-tinta-3">
+      <p className="text-tinta-2">{resultado.mensaje}</p>
       {resultado.sugerencia ? (
-        <p className="mt-1.5 text-white/45">{resultado.sugerencia}</p>
+        <p className="mt-1.5 text-tinta-4">{resultado.sugerencia}</p>
       ) : null}
     </div>
   );

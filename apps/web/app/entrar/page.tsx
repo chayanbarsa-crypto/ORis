@@ -25,12 +25,12 @@ export default async function Entrar({
   const destino = typeof volver === 'string' && /^\/(?!\/)/.test(volver) ? volver : '/';
 
   return (
-    <main className="relative h-dvh w-screen overflow-hidden">
+    <main className="tema-oscuro relative h-dvh w-screen overflow-hidden">
       <StarField />
       <UnlockScreen destino={destino} />
       <div className="pointer-events-none absolute inset-x-0 bottom-2 z-30 flex justify-center px-6">
         {falta ? (
-          <p className="max-w-xs rounded-lg border border-[#BF8228]/30 bg-[#BF8228]/[0.06] px-3 py-2 text-center text-[0.72rem] leading-relaxed text-white/60">
+          <p className="max-w-xs rounded-lg border border-aviso-borde bg-aviso-fondo px-3 py-2 text-center text-[0.72rem] leading-relaxed text-tinta-3">
             Falta <code>ORIS_SECRETO</code> en el entorno del despliegue. Hasta que esté,
             no se puede entrar — y es lo correcto: sin ella no habría puerta.
           </p>

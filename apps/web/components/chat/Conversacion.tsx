@@ -137,7 +137,7 @@ export function Conversacion({ onConversar }: ConversacionProps) {
         {turnos.length === 0 ? (
           <div className="my-auto flex flex-col items-center gap-3">
             <IresEye size={72} className="opacity-40" />
-            <p className="max-w-xs text-center text-[0.82rem] leading-relaxed text-white/30">
+            <p className="max-w-xs text-center text-[0.82rem] leading-relaxed text-tinta-5">
               Pregúntame por tus cuentas. Las cifras las saco de tus movimientos,
               no me las invento.
             </p>
@@ -148,7 +148,7 @@ export function Conversacion({ onConversar }: ConversacionProps) {
                     key={s}
                     type="button"
                     onClick={() => setEscrito(s)}
-                    className="rounded-full border border-white/[0.1] px-2.5 py-1 text-[0.7rem] text-white/45 transition-colors hover:border-white/25 hover:text-white/75"
+                    className="rounded-full border border-borde-2 px-2.5 py-1 text-[0.7rem] text-tinta-4 transition-colors hover:border-borde-4 hover:text-tinta-2"
                   >
                     {s}
                   </button>
@@ -169,8 +169,8 @@ export function Conversacion({ onConversar }: ConversacionProps) {
             <p
               className={
                 t.rol === 'user'
-                  ? 'max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-white/[0.07] px-3.5 py-2 text-[0.82rem] leading-relaxed text-white/85'
-                  : 'max-w-[92%] whitespace-pre-wrap text-[0.82rem] leading-relaxed text-white/75'
+                  ? 'max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-superficie-3 px-3.5 py-2 text-[0.82rem] leading-relaxed text-tinta-2'
+                  : 'max-w-[92%] whitespace-pre-wrap text-[0.82rem] leading-relaxed text-tinta-2'
               }
             >
               {t.texto}
@@ -179,14 +179,14 @@ export function Conversacion({ onConversar }: ConversacionProps) {
         ))}
 
         {pensando ? (
-          <p className="flex items-center gap-2 text-[0.74rem] text-white/35">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#2D96F0]" />
+          <p className="flex items-center gap-2 text-[0.74rem] text-tinta-4">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-serie" />
             {haciendo ?? 'Pensando'}…
           </p>
         ) : null}
 
         {error ? (
-          <p className="rounded-lg border border-[#BF8228]/30 bg-[#BF8228]/[0.06] px-3 py-2 text-[0.76rem] leading-relaxed text-white/70">
+          <p className="rounded-lg border border-aviso-borde bg-aviso-fondo px-3 py-2 text-[0.76rem] leading-relaxed text-tinta-2">
             {error}
           </p>
         ) : null}
@@ -194,9 +194,9 @@ export function Conversacion({ onConversar }: ConversacionProps) {
         <div ref={abajo} />
       </div>
 
-      <div className="border-t border-white/[0.07] p-4">
+      <div className="border-t border-borde p-4">
         <form
-          className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 focus-within:border-white/20"
+          className="flex items-center gap-3 rounded-xl border border-borde-2 bg-superficie px-4 py-3 focus-within:border-borde-4"
           onSubmit={(e) => {
             e.preventDefault();
             void enviar();
@@ -208,14 +208,14 @@ export function Conversacion({ onConversar }: ConversacionProps) {
             onChange={(e) => setEscrito(e.target.value)}
             disabled={pensando}
             placeholder={pensando ? 'Un momento…' : 'Pregúntame por tus cuentas…'}
-            className="flex-1 bg-transparent text-sm text-white/80 placeholder:text-white/20 focus:outline-none disabled:cursor-not-allowed"
+            className="flex-1 bg-transparent text-sm text-tinta-2 placeholder:text-tinta-5 focus:outline-none disabled:cursor-not-allowed"
             aria-label="Mensaje para ORis"
           />
           <button
             type="submit"
             disabled={pensando || escrito.trim() === ''}
             aria-label="Enviar"
-            className="text-white/45 transition-colors hover:text-white/80 disabled:cursor-not-allowed disabled:text-white/15"
+            className="text-tinta-4 transition-colors hover:text-tinta-2 disabled:cursor-not-allowed disabled:text-tinta-5"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M4 12h15M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />

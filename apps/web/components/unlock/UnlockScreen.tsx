@@ -119,12 +119,12 @@ export function UnlockScreen({ destino = '/' }: UnlockScreenProps) {
             transition={{ duration: 0.6 }}
           >
             <h1
-              className="text-[clamp(2.2rem,7vw,4rem)] font-extralight tracking-[0.42em] text-white/90"
+              className="text-[clamp(2.2rem,7vw,4rem)] font-extralight tracking-[0.42em] text-tinta"
               style={{ textShadow: `0 0 28px ${rgba(theme.glow, 0.55)}` }}
             >
               ORis
             </h1>
-            <p className="text-[0.62rem] uppercase tracking-[0.34em] text-white/35 sm:text-xs">
+            <p className="text-[0.62rem] uppercase tracking-[0.34em] text-tinta-4 sm:text-xs">
               Inteligencia financiera
             </p>
           </motion.header>
@@ -145,7 +145,7 @@ export function UnlockScreen({ destino = '/' }: UnlockScreenProps) {
             {showPin && !desbloqueado && (
               <motion.div
                 key="pin"
-                className="absolute inset-0 z-10 flex items-center justify-center bg-[#040814]/55 backdrop-blur-[2px]"
+                className="absolute inset-0 z-10 flex items-center justify-center bg-fondo/55 backdrop-blur-[2px]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -161,7 +161,7 @@ export function UnlockScreen({ destino = '/' }: UnlockScreenProps) {
             animate={{ opacity: leaving ? 0 : 1, y: leaving ? 12 : 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.3em] text-white/40 sm:text-xs">
+            <span className="flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.3em] text-tinta-4 sm:text-xs">
               <span
                 className="inline-block h-1.5 w-1.5 rounded-full"
                 style={{
@@ -171,7 +171,7 @@ export function UnlockScreen({ destino = '/' }: UnlockScreenProps) {
               />
               {locked ? 'Sistema bloqueado' : 'Despertando'}
             </span>
-            <span className="max-w-xs text-[0.68rem] leading-relaxed text-white/25">
+            <span className="max-w-xs text-[0.68rem] leading-relaxed text-tinta-5">
               {showPin
                 ? 'ORis está despierto · ahora el PIN'
                 : fails > 0

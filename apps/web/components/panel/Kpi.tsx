@@ -43,20 +43,20 @@ export function Kpi({
 }: KpiProps) {
   const contenido = (
     <>
-      <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">{etiqueta}</p>
+      <p className="text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">{etiqueta}</p>
       {/* `whitespace-nowrap` y el escalón de tamaño no son cosmética: sin ellos
           «+1.413,70 €» parte en dos líneas en móvil y el símbolo de euro se
           queda solo debajo de la cifra. */}
       <p
         className={`mt-1.5 whitespace-nowrap tabular-nums ${
           secundario
-            ? 'text-base font-light text-white/55 sm:text-lg'
-            : 'text-xl font-light text-white/90 sm:text-2xl'
+            ? 'text-base font-light text-tinta-3 sm:text-lg'
+            : 'text-xl font-light text-tinta sm:text-2xl'
         }`}
       >
         {formatear(valor, { signo: conSigno })}
       </p>
-      {pie ? <p className="mt-1 text-[0.68rem] leading-snug text-white/35">{pie}</p> : null}
+      {pie ? <p className="mt-1 text-[0.68rem] leading-snug text-tinta-4">{pie}</p> : null}
     </>
   );
 
@@ -67,8 +67,8 @@ export function Kpi({
   const caja =
     'flex w-full flex-col items-start overflow-hidden rounded-xl border px-4 py-3.5 text-left transition-colors ' +
     (abierto
-      ? 'border-white/[0.16] bg-white/[0.055]'
-      : 'border-white/[0.07] bg-white/[0.025]');
+      ? 'border-borde-3 bg-superficie-2'
+      : 'border-borde bg-superficie');
 
   if (!onAbrir) return <div className={caja}>{contenido}</div>;
 
@@ -78,12 +78,12 @@ export function Kpi({
       onClick={onAbrir}
       aria-expanded={abierto ?? false}
       aria-controls={controla}
-      className={`${caja} hover:border-white/[0.14] hover:bg-white/[0.045] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/45`}
+      className={`${caja} hover:border-borde-3 hover:bg-superficie-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-borde-4`}
     >
       {contenido}
       {/* Que algo se puede abrir hay que decirlo, no dejarlo al hover: en una
           pantalla táctil no hay hover que descubra nada. */}
-      <span className="mt-1.5 block text-[0.62rem] uppercase tracking-[0.16em] text-white/25">
+      <span className="mt-1.5 block text-[0.62rem] uppercase tracking-[0.16em] text-tinta-5">
         {abierto ? 'Cerrar detalle' : 'Ver detalle'}
       </span>
     </button>

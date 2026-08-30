@@ -73,9 +73,9 @@ export function PanelPrincipal({ movimientos, extractos = [], motivoVacio }: Pan
   if (movimientos.length === 0) {
     return (
       <section className="flex min-h-0 flex-1 items-center justify-center px-6 py-10">
-        <div className="max-w-md rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-7 text-center">
-          <p className="text-sm text-white/60">Todavía no hay movimientos que enseñar.</p>
-          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-white/35">
+        <div className="max-w-md rounded-2xl border border-borde bg-superficie px-6 py-7 text-center">
+          <p className="text-sm text-tinta-3">Todavía no hay movimientos que enseñar.</p>
+          <p className="mt-2.5 text-[0.78rem] leading-relaxed text-tinta-4">
             {motivoVacio ??
               'Sube un extracto y ORis lo auditará, categorizará y guardará. Hasta entonces no hay nada que contar — y prefiero decirlo a inventar cifras.'}
           </p>
@@ -88,7 +88,7 @@ export function PanelPrincipal({ movimientos, extractos = [], motivoVacio }: Pan
     <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
       {/* Los filtros, en una fila sobre el contenido. */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto text-sm font-light tracking-wide text-white/70">
+        <h2 className="mr-auto text-sm font-light tracking-wide text-tinta-2">
           {mesActivo ? nombreMes(mesActivo) : 'Panel'}
         </h2>
         {meses.map((m) => (
@@ -99,8 +99,8 @@ export function PanelPrincipal({ movimientos, extractos = [], motivoVacio }: Pan
             aria-pressed={m === mesActivo}
             className={`rounded-full px-3 py-1 text-[0.7rem] tabular-nums transition-colors ${
               m === mesActivo
-                ? 'bg-white/[0.09] text-white/85'
-                : 'text-white/40 hover:bg-white/[0.04] hover:text-white/65'
+                ? 'bg-superficie-3 text-tinta-2'
+                : 'text-tinta-4 hover:bg-superficie-2 hover:text-tinta-3'
             }`}
           >
             {m}
@@ -167,8 +167,8 @@ export function PanelPrincipal({ movimientos, extractos = [], motivoVacio }: Pan
       ) : null}
 
       {pendientes > 0 ? (
-        <p className="mb-5 rounded-lg border border-white/[0.07] bg-white/[0.02] px-3.5 py-2.5 text-[0.72rem] leading-relaxed text-white/45">
-          <strong className="font-normal text-white/65">{pendientes}</strong> de {delMes.length}{' '}
+        <p className="mb-5 rounded-lg border border-borde bg-superficie px-3.5 py-2.5 text-[0.72rem] leading-relaxed text-tinta-4">
+          <strong className="font-normal text-tinta-3">{pendientes}</strong> de {delMes.length}{' '}
           movimientos están sin categorizar o los categorizó el modelo. Las cifras de arriba son
           correctas de todos modos —el reparto por categoría es lo que puede moverse al revisarlos.
         </p>
@@ -187,7 +187,7 @@ export function PanelPrincipal({ movimientos, extractos = [], motivoVacio }: Pan
       </div>
 
       <div>
-        <h3 className="mb-2.5 text-[0.6rem] uppercase tracking-[0.2em] text-white/40">
+        <h3 className="mb-2.5 text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">
           Movimientos
         </h3>
         <ListaMovimientos movimientos={delMes} />

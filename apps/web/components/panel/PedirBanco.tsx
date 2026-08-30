@@ -64,10 +64,10 @@ export function PedirBanco({ extracto }: PedirBancoProps) {
       : null;
 
   return (
-    <div className="rounded-xl border border-[#BF8228]/30 bg-[#BF8228]/[0.06] px-4 py-3.5">
-      <p className="text-[0.82rem] leading-relaxed text-white/75">
+    <div className="rounded-xl border border-aviso-borde bg-aviso-fondo px-4 py-3.5">
+      <p className="text-[0.82rem] leading-relaxed text-tinta-2">
         No he sabido de qué banco es{' '}
-        <strong className="font-normal text-white/90">{extracto.nombreFichero}</strong>
+        <strong className="font-normal text-tinta">{extracto.nombreFichero}</strong>
         {periodo ? <> ({periodo})</> : null}. ¿Me lo dices? Con varias cuentas hace
         falta para no mezclarlas.
       </p>
@@ -79,7 +79,7 @@ export function PedirBanco({ extracto }: PedirBancoProps) {
             type="button"
             disabled={guardando}
             onClick={() => guardar(b)}
-            className="rounded-full border border-white/[0.12] px-2.5 py-1 text-[0.72rem] text-white/65 transition-colors hover:border-white/25 hover:text-white/90 disabled:opacity-40"
+            className="rounded-full border border-borde-2 px-2.5 py-1 text-[0.72rem] text-tinta-3 transition-colors hover:border-borde-4 hover:text-tinta disabled:opacity-40"
           >
             {b}
           </button>
@@ -101,7 +101,7 @@ export function PedirBanco({ extracto }: PedirBancoProps) {
           onChange={(e) => setNombre(e.target.value)}
           placeholder="u otro: escríbelo"
           aria-label="Nombre del banco"
-          className="min-w-0 flex-1 rounded-lg border border-white/[0.12] bg-white/[0.03] px-3 py-1.5 text-[0.78rem] text-white/85 outline-none placeholder:text-white/25 focus:border-white/30"
+          className="min-w-0 flex-1 rounded-lg border border-borde-2 bg-superficie px-3 py-1.5 text-[0.78rem] text-tinta-2 outline-none placeholder:text-tinta-5 focus:border-borde-4"
         />
         <datalist id="bancos-conocidos">
           {BANCOS_CONOCIDOS.map((b) => (
@@ -111,13 +111,13 @@ export function PedirBanco({ extracto }: PedirBancoProps) {
         <button
           type="submit"
           disabled={guardando || nombre.trim().length < 2}
-          className="rounded-lg border border-white/[0.14] px-3 py-1.5 text-[0.75rem] text-white/80 transition-colors hover:border-white/30 disabled:opacity-35"
+          className="rounded-lg border border-borde-3 px-3 py-1.5 text-[0.75rem] text-tinta-2 transition-colors hover:border-borde-4 disabled:opacity-35"
         >
           {guardando ? 'Guardando…' : 'Es este'}
         </button>
       </form>
 
-      {error ? <p className="mt-2 text-[0.72rem] text-[#E06C5A]">{error}</p> : null}
+      {error ? <p className="mt-2 text-[0.72rem] text-mal">{error}</p> : null}
     </div>
   );
 }

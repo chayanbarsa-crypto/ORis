@@ -63,17 +63,17 @@ export function DetalleKpi({ tipo, movimientos, mes, resumen, onCerrar, id }: De
   return (
     <section
       id={id}
-      className="mb-6 rounded-xl border border-white/[0.09] bg-white/[0.03] px-4 py-4 sm:px-5"
+      className="mb-6 rounded-xl border border-borde-2 bg-superficie px-4 py-4 sm:px-5"
     >
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-sm font-light text-white/80">{TITULOS[tipo]}</h3>
-          <p className="mt-0.5 text-[0.7rem] text-white/35">{nombreMes(mes)}</p>
+          <h3 className="text-sm font-light text-tinta-2">{TITULOS[tipo]}</h3>
+          <p className="mt-0.5 text-[0.7rem] text-tinta-4">{nombreMes(mes)}</p>
         </div>
         <button
           type="button"
           onClick={onCerrar}
-          className="-mr-1 -mt-1 rounded-lg px-2 py-1 text-[0.7rem] text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/75 focus-visible:outline focus-visible:outline-1 focus-visible:outline-white/40"
+          className="-mr-1 -mt-1 rounded-lg px-2 py-1 text-[0.7rem] text-tinta-4 transition-colors hover:bg-superficie-2 hover:text-tinta-2 focus-visible:outline focus-visible:outline-1 focus-visible:outline-borde-4"
         >
           Cerrar
         </button>
@@ -189,11 +189,11 @@ function Gastos({
         <ul className="mt-2 space-y-1.5">
           {caros.map((m) => (
             <li key={m.id} className="flex items-baseline justify-between gap-3 text-[0.78rem]">
-              <span className="min-w-0 truncate text-white/70">
-                <span className="mr-2 tabular-nums text-white/30">{m.fecha.slice(8, 10)}</span>
+              <span className="min-w-0 truncate text-tinta-2">
+                <span className="mr-2 tabular-nums text-tinta-5">{m.fecha.slice(8, 10)}</span>
                 {m.concepto}
               </span>
-              <span className="shrink-0 tabular-nums text-white/60">
+              <span className="shrink-0 tabular-nums text-tinta-3">
                 {formatear(Math.abs(aCentimos(m.importe) ?? 0))}
               </span>
             </li>
@@ -239,12 +239,12 @@ function Neto({
 
       {/* La resta, escrita. Es la única forma de que nadie tenga que fiarse de
           que el número de arriba está bien: se ve de dónde sale. */}
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[0.82rem] tabular-nums text-white/55">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[0.82rem] tabular-nums text-tinta-3">
         <span>{formatear(resumen.ingresos)} que entran</span>
-        <span className="text-white/25">−</span>
+        <span className="text-tinta-5">−</span>
         <span>{formatear(resumen.gastos)} que salen</span>
-        <span className="text-white/25">=</span>
-        <span className="text-white/85">{formatear(resumen.neto, { signo: true })}</span>
+        <span className="text-tinta-5">=</span>
+        <span className="text-tinta-2">{formatear(resumen.neto, { signo: true })}</span>
       </div>
 
       {tasa !== null ? (
@@ -297,7 +297,7 @@ function Neto({
                   </div>
                   <span
                     className={`mt-1 text-[0.62rem] tabular-nums ${
-                      actual ? 'text-white/65' : 'text-white/30'
+                      actual ? 'text-tinta-3' : 'text-tinta-5'
                     }`}
                   >
                     {MESES_MINI[Number(p.mes.slice(5)) - 1]}
@@ -306,7 +306,7 @@ function Neto({
               );
             })}
           </div>
-          <p className="mt-2 text-[0.68rem] text-white/30">
+          <p className="mt-2 text-[0.68rem] text-tinta-5">
             Arriba de la línea, meses que cerraron en positivo; abajo, los que no.
             El más alto son {formatear(tope)}.
           </p>
@@ -347,11 +347,11 @@ function Traspasos({ movimientos, mes }: { movimientos: readonly MovimientoVista
             const centimos = aCentimos(m.importe) ?? 0;
             return (
               <li key={m.id} className="flex items-baseline justify-between gap-3 text-[0.78rem]">
-                <span className="min-w-0 truncate text-white/70">
-                  <span className="mr-2 tabular-nums text-white/30">{m.fecha.slice(8, 10)}</span>
+                <span className="min-w-0 truncate text-tinta-2">
+                  <span className="mr-2 tabular-nums text-tinta-5">{m.fecha.slice(8, 10)}</span>
                   {m.concepto}
                 </span>
-                <span className="shrink-0 tabular-nums text-white/60">
+                <span className="shrink-0 tabular-nums text-tinta-3">
                   {centimos >= 0 ? 'entra ' : 'sale '}
                   {formatear(Math.abs(centimos))}
                 </span>
@@ -392,15 +392,15 @@ function Cabecera({
 }) {
   return (
     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <span className="whitespace-nowrap text-2xl font-light tabular-nums text-white/90">
+      <span className="whitespace-nowrap text-2xl font-light tabular-nums text-tinta">
         {formatear(valor, { signo: conSigno })}
       </span>
       {variacion ? (
-        <span className="text-[0.75rem] text-white/45">
+        <span className="text-[0.75rem] text-tinta-4">
           {textoVariacion(variacion)}
         </span>
       ) : (
-        <span className="text-[0.72rem] text-white/30">
+        <span className="text-[0.72rem] text-tinta-5">
           Sin el mes anterior cargado no hay con qué comparar
         </span>
       )}
@@ -431,10 +431,10 @@ function Barras({ lineas, etiqueta }: { lineas: readonly LineaDetalle[]; etiquet
         {lineas.map((l) => (
           <li key={l.clave}>
             <div className="mb-1 flex items-baseline justify-between gap-3 text-[0.78rem]">
-              <span className="min-w-0 truncate text-white/75">{l.clave}</span>
-              <span className="shrink-0 tabular-nums text-white/55">
+              <span className="min-w-0 truncate text-tinta-2">{l.clave}</span>
+              <span className="shrink-0 tabular-nums text-tinta-3">
                 {formatear(l.total)}
-                <span className="ml-2 text-white/30">{Math.round(l.proporcion * 100)} %</span>
+                <span className="ml-2 text-tinta-5">{Math.round(l.proporcion * 100)} %</span>
               </span>
             </div>
             <div
@@ -459,22 +459,22 @@ function Barras({ lineas, etiqueta }: { lineas: readonly LineaDetalle[]; etiquet
 
 function Dato({ titulo, valor, pie }: { titulo: string; valor: string; pie?: string }) {
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
-      <p className="text-[0.6rem] uppercase tracking-[0.18em] text-white/35">{titulo}</p>
-      <p className="mt-1 whitespace-nowrap text-base font-light tabular-nums text-white/80">{valor}</p>
-      {pie ? <p className="mt-0.5 text-[0.66rem] leading-snug text-white/30">{pie}</p> : null}
+    <div className="rounded-lg border border-borde bg-superficie px-3 py-2.5">
+      <p className="text-[0.6rem] uppercase tracking-[0.18em] text-tinta-4">{titulo}</p>
+      <p className="mt-1 whitespace-nowrap text-base font-light tabular-nums text-tinta-2">{valor}</p>
+      {pie ? <p className="mt-0.5 text-[0.66rem] leading-snug text-tinta-5">{pie}</p> : null}
     </div>
   );
 }
 
 function Titulo({ children }: { children: ReactNode }) {
-  return <h4 className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">{children}</h4>;
+  return <h4 className="text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">{children}</h4>;
 }
 
 function Nota({ children }: { children: ReactNode }) {
-  return <p className="text-[0.7rem] leading-relaxed text-white/30">{children}</p>;
+  return <p className="text-[0.7rem] leading-relaxed text-tinta-5">{children}</p>;
 }
 
 function Vacio({ texto }: { texto: string }) {
-  return <p className="py-2 text-[0.8rem] text-white/40">{texto}</p>;
+  return <p className="py-2 text-[0.8rem] text-tinta-4">{texto}</p>;
 }

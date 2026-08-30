@@ -30,7 +30,7 @@ export function DesgloseGasto({ lineas, total }: DesgloseGastoProps) {
 
   if (lineas.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-white/35">
+      <p className="rounded-xl border border-dashed border-borde-2 px-4 py-6 text-center text-sm text-tinta-4">
         No hay gasto registrado en este periodo.
       </p>
     );
@@ -41,10 +41,10 @@ export function DesgloseGasto({ lineas, total }: DesgloseGastoProps) {
   return (
     <div>
       <div className="mb-3 flex items-baseline justify-between">
-        <h3 className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">
+        <h3 className="text-[0.6rem] uppercase tracking-[0.2em] text-tinta-4">
           Gasto por categoría
         </h3>
-        <span className="tabular-nums text-sm font-light text-white/70">{formatear(total)}</span>
+        <span className="tabular-nums text-sm font-light text-tinta-2">{formatear(total)}</span>
       </div>
 
       <ul className="space-y-[6px]" style={{ paddingBottom: HUECO_BARRAS }}>
@@ -64,19 +64,19 @@ export function DesgloseGasto({ lineas, total }: DesgloseGastoProps) {
               onFocus={() => setActiva(l.categoria)}
               onBlur={() => setActiva(null)}
               tabIndex={0}
-              className="group relative rounded-md px-1 py-1 outline-none transition-colors focus-visible:bg-white/[0.04] hover:bg-white/[0.03]"
+              className="group relative rounded-md px-1 py-1 outline-none transition-colors focus-visible:bg-superficie-2 hover:bg-superficie"
             >
               <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-                <span className="truncate text-white/75">
+                <span className="truncate text-tinta-2">
                   {l.categoria}
                   {pendiente ? (
-                    <span className="ml-1.5 text-[0.62rem] uppercase tracking-wider text-white/40">
+                    <span className="ml-1.5 text-[0.62rem] uppercase tracking-wider text-tinta-4">
                       · pendiente
                     </span>
                   ) : null}
                   {l.porIA > 0 ? (
                     <span
-                      className="ml-1.5 text-[0.62rem] text-white/35"
+                      className="ml-1.5 text-[0.62rem] text-tinta-4"
                       title={`${l.porIA} categorizado(s) por el modelo — conviene revisarlos`}
                     >
                       ({l.porIA} por IA)
@@ -84,7 +84,7 @@ export function DesgloseGasto({ lineas, total }: DesgloseGastoProps) {
                   ) : null}
                 </span>
                 {/* Etiqueta directa: el valor va siempre, sin depender del hover. */}
-                <span className="shrink-0 tabular-nums text-white/60">{formatear(l.total)}</span>
+                <span className="shrink-0 tabular-nums text-tinta-3">{formatear(l.total)}</span>
               </div>
 
               <div
@@ -106,7 +106,7 @@ export function DesgloseGasto({ lineas, total }: DesgloseGastoProps) {
               </div>
 
               {resaltada ? (
-                <p className="mt-1 text-[0.68rem] tabular-nums text-white/45">
+                <p className="mt-1 text-[0.68rem] tabular-nums text-tinta-4">
                   {Math.round(l.proporcion * 100)} % del gasto · {l.movimientos} movimiento
                   {l.movimientos === 1 ? '' : 's'}
                 </p>
