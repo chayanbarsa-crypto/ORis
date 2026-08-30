@@ -111,7 +111,21 @@ comprobar(
 
 const ind = indicadores(mayo, 2000);
 comprobar(ind.equilibrio === 31, 'con estructura de 610 € y cobro típico de 20 €, hacen falta 31', ind.equilibrio);
-comprobar(ind.distanciaAlEquilibrio === 3 - 31, 'y con tres cobros faltaron 28');
+comprobar(
+  ind.equivalentes === 43,
+  'los 858 € facturados equivalen a 43 cobros típicos, no a los 3 apuntes de ingreso',
+  ind.equivalentes,
+);
+comprobar(ind.distanciaAlEquilibrio === 12, 'y sobre los 31 del umbral, sobraron 12');
+// La comprobación que motivó el cambio: los dos indicadores salen de las mismas
+// dos cifras, así que no pueden discrepar sobre si el mes llegó o no.
+comprobar(
+  ind.cobertura !== null &&
+    ind.distanciaAlEquilibrio !== null &&
+    ind.cobertura >= 1 === ind.distanciaAlEquilibrio >= 0,
+  'la cobertura y la distancia al equilibrio nunca se contradicen',
+  { cobertura: ind.cobertura, distancia: ind.distanciaAlEquilibrio },
+);
 comprobar(
   Math.abs((ind.cobertura ?? 0) - 858 / 610) < 1e-9,
   'la cobertura es facturación entre estructura',
@@ -120,7 +134,10 @@ comprobar(
 
 const vacio = indicadores(leerMes([], '2026-05', []));
 comprobar(
-  vacio.cobertura === null && vacio.equilibrio === null && vacio.margenRelativo === null,
+  vacio.cobertura === null &&
+    vacio.equilibrio === null &&
+    vacio.equivalentes === null &&
+    vacio.margenRelativo === null,
   'sin datos, los ratios son null y no cero: no es lo mismo cero que no saberlo',
 );
 

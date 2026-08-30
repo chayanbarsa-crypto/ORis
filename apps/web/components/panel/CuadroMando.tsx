@@ -107,11 +107,10 @@ export function CuadroMando({
         pie={
           ind.equilibrio === null
             ? 'Hace falta un cobro típico para calcularlo'
-            : ind.distanciaAlEquilibrio !== null && ind.distanciaAlEquilibrio >= 0
-              ? `Cobros típicos para cubrir estructura · te sobraron ${ind.distanciaAlEquilibrio}`
-              : `Cobros típicos para cubrir estructura · faltaron ${Math.abs(
-                  ind.distanciaAlEquilibrio ?? 0,
-                )}`
+            : `Cobros típicos para cubrir la estructura. El mes valió ${ind.equivalentes}` +
+              (ind.distanciaAlEquilibrio !== null && ind.distanciaAlEquilibrio >= 0
+                ? ` — sobraron ${ind.distanciaAlEquilibrio}`
+                : ` — faltaron ${Math.abs(ind.distanciaAlEquilibrio ?? 0)}`)
         }
         estado={
           ind.distanciaAlEquilibrio !== null && ind.distanciaAlEquilibrio < 0 ? 'aviso' : undefined

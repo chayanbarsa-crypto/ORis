@@ -76,7 +76,25 @@ export interface Indicadores {
   margenRelativo: number | null;
   /** Cuántos cobros típicos hacen falta para cubrir la estructura. */
   equilibrio: number | null;
-  /** Cuántos cobros típicos faltaron o sobraron respecto del equilibrio. */
+  /**
+   * A cuántos cobros típicos equivale lo facturado.
+   *
+   * No es el número de cobros del mes, y la diferencia importa: **un ingreso en
+   * efectivo agrupa la caja de varios días en un solo apunte**. En el mes de
+   * referencia el negocio hizo 44 apuntes de ingreso, pero uno de ellos era un
+   * ingreso en ventanilla de mil euros — lo facturado equivalía a 96 cobros
+   * típicos, no a 44.
+   */
+  equivalentes: number | null;
+  /**
+   * Cuántos cobros típicos sobraron respecto del equilibrio, o faltaron si es
+   * negativo.
+   *
+   * Se mide en equivalentes y no en apuntes porque si no **contradice a la
+   * cobertura**, que sale de las mismas dos cifras: el panel enseñaba «cobertura
+   * 1,60×, el mes pagó lo que cuesta abrir» al lado de «faltaron 17 cobros», y
+   * las dos frases no pueden ser ciertas a la vez.
+   */
   distanciaAlEquilibrio: number | null;
 }
 
@@ -176,13 +194,16 @@ export function indicadores(l: LecturaMes, cobroReferencia?: Centimos | null): I
   const cobro = cobroReferencia ?? l.cobroTipico;
   const equilibrio =
     cobro && cobro > 0 && l.estructura > 0 ? Math.ceil(l.estructura / cobro) : null;
+  const equivalentes = cobro && cobro > 0 ? Math.round(l.facturacion / cobro) : null;
 
   return {
     cobertura: l.estructura > 0 ? l.facturacion / l.estructura : null,
     pesoEstructura: l.facturacion > 0 ? l.estructura / l.facturacion : null,
     margenRelativo: l.facturacion > 0 ? l.margen / l.facturacion : null,
     equilibrio,
-    distanciaAlEquilibrio: equilibrio !== null ? l.cobros - equilibrio : null,
+    equivalentes,
+    distanciaAlEquilibrio:
+      equilibrio !== null && equivalentes !== null ? equivalentes - equilibrio : null,
   };
 }
 
