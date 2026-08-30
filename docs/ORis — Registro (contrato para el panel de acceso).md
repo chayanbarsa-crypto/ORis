@@ -84,3 +84,60 @@ pruebas tienen que seguir pasando —o cambiar a la vez y por un motivo escrito.
 ```
 npx tsx lib/auth/pruebas/auth.test.ts
 ```
+
+## Trabajar en paralelo sin pisarse
+
+Rama `registro`, ya creada y publicada. Sale de `main` en `b1becba`.
+
+```bash
+git fetch origin
+git checkout registro
+```
+
+Lo que evita los conflictos no es la rama: es **repartir los archivos**. Una
+rama con los dos tocando lo mismo da exactamente el mismo lío, sólo que más
+tarde y todo junto.
+
+**De la rama `registro` (nadie más los toca):**
+
+```
+apps/web/app/registro/**            la pantalla nueva
+apps/web/app/api/registro/**        el alta
+apps/web/lib/auth/usuarios.ts       la tabla y sus consultas
+apps/web/drizzle/**                 la migración de la tabla de usuarios
+apps/web/lib/oris/usuario.ts        la costura: constante -> función
+```
+
+**De `main` (no tocar desde la rama):**
+
+```
+apps/web/components/**              interfaz, tokens de color, modo claro
+apps/web/lib/oris/*.ts              agregados, series, detalle, copiloto...
+apps/web/app/api/{extractos,movimientos,copiloto}/**
+```
+
+Los cuatro archivos de la columna de `main` que **leen** `USUARIO` no hace falta
+tocarlos: si `usuario.ts` pasa a exportar una función con el mismo nombre, se
+cambia una línea en cada uno y se hace **al fusionar**, no antes.
+
+Zona compartida y por eso conviene avisar antes de entrar: `middleware.ts`,
+`lib/auth/sesion.ts`, `app/api/pin/route.ts`. Son la puerta y ya funciona; si el
+registro necesita cambiarlos, mejor decirlo que hacerlo en paralelo.
+
+**Ponerse al día con `main` (a menudo, no al final):**
+
+```bash
+git checkout registro
+git merge origin/main
+```
+
+Media hora de conflictos una vez por semana es peor que dos minutos cada día.
+
+**Antes de fusionar, esto tiene que estar en verde:**
+
+```bash
+cd apps/web
+npx tsc --noEmit
+npx tsx lib/auth/pruebas/auth.test.ts
+npx next build
+```
