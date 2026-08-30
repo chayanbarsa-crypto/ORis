@@ -24,7 +24,11 @@ export const SECCIONES: readonly SeccionPanel[] = [
   { id: 'movimientos', label: 'Movimientos', activa: true },
   { id: 'extractos', label: 'Extractos', activa: true },
   { id: 'categorias', label: 'Categorías', activa: true },
-  { id: 'copiloto', label: 'Copiloto', activa: false, nota: 'Necesita backend de IA' },
+  // El copiloto no es una sección: vive en el panel de la derecha y está
+  // siempre abierto. Se queda en la lista porque quien busca «dónde se le
+  // pregunta a ORis» mira aquí primero, y encontrarlo con su sitio señalado
+  // responde antes que no encontrarlo.
+  { id: 'copiloto', label: 'Copiloto', activa: false, nota: 'Está a la derecha, siempre abierto' },
 ];
 
 export interface FinanceSidebarProps {
