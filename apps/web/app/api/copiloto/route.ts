@@ -204,6 +204,14 @@ function sistema(cuantos: number, mesReciente: string | null, motivo: string | n
   ].join('\n');
 }
 
+/** El texto que manda Anthropic dentro del error, recortado. */
+function mensajeDeLaApi(e: InstanceType<typeof Anthropic.APIError>): string | null {
+  const cuerpo = e.error as { error?: { message?: unknown } } | undefined;
+  const mensaje = cuerpo?.error?.message;
+  if (typeof mensaje !== 'string' || mensaje.trim() === '') return null;
+  return mensaje.length > 300 ? `${mensaje.slice(0, 300)}…` : mensaje;
+}
+
 function explicar(e: unknown): string {
   if (e instanceof Anthropic.RateLimitError) {
     return 'La API va saturada ahora mismo. Prueba dentro de un momento.';
@@ -217,8 +225,16 @@ function explicar(e: unknown): string {
     return 'No he podido llegar a la API. Puede ser la conexión.';
   }
   if (e instanceof Anthropic.APIError) {
-    // El cuerpo del error puede traer detalles de la petición: sólo el código.
-    return `La API respondió ${e.status ?? 'con un error'}. No he podido contestar.`;
+    // El motivo, cuando la API lo da.
+    //
+    // Antes aquí sólo iba el código, por prudencia con lo que pudiera traer el
+    // cuerpo. Salió mal: un 400 puede ser el saldo agotado o un esquema que no
+    // le gusta, y «respondió 400» no distingue entre pagar y arreglar código.
+    // El mensaje de Anthropic no lleva la petición, sólo qué está mal, así que
+    // se enseña recortado.
+    const detalle = mensajeDeLaApi(e);
+    const cabeza = `La API respondió ${e.status ?? 'con un error'}`;
+    return detalle ? `${cabeza}: ${detalle}` : `${cabeza}. No he podido contestar.`;
   }
   return 'Algo ha fallado por dentro y no he podido contestar.';
 }

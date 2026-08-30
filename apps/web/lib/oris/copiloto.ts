@@ -86,7 +86,9 @@ export const HERRAMIENTAS: Anthropic.Tool[] = [
       'Reparto del gasto por categoría, de mayor a menor. Con `mes` en null, todo el histórico.',
     input_schema: {
       type: 'object',
-      properties: { mes: { type: ['string', 'null'], description: '«2026-05», o null para todo.' } },
+      properties: {
+        mes: { type: 'string', description: '«2026-05». Cadena vacía para todo el histórico.' },
+      },
       required: ['mes'],
       additionalProperties: false,
     },
@@ -151,16 +153,17 @@ export const HERRAMIENTAS: Anthropic.Tool[] = [
   {
     name: 'buscar_movimientos',
     description:
-      'Busca movimientos por texto del concepto, rango de fechas o de importe. Cualquier ' +
-      'filtro puede ir en null. Devuelve como mucho ' + TOPE_BUSQUEDA + ' y avisa si recorta.',
+      'Busca movimientos por texto del concepto, rango de fechas o de importe. Un filtro ' +
+      'que no quieras aplicar va vacío («» o 0), no omitido. Devuelve como mucho ' +
+      TOPE_BUSQUEDA + ' y avisa si recorta.',
     input_schema: {
       type: 'object',
       properties: {
-        texto: { type: ['string', 'null'], description: 'Parte del concepto. Sin distinguir mayúsculas ni tildes.' },
-        desde: { type: ['string', 'null'], description: 'Fecha «2026-01-01» incluida.' },
-        hasta: { type: ['string', 'null'], description: 'Fecha «2026-03-31» incluida.' },
-        categoria: { type: ['string', 'null'], description: 'Nombre exacto de categoría.' },
-        importe_minimo: { type: ['number', 'null'], description: 'En euros, sobre el valor absoluto.' },
+        texto: { type: 'string', description: 'Parte del concepto. Sin distinguir mayúsculas ni tildes. Vacío = no filtrar.' },
+        desde: { type: 'string', description: 'Fecha «2026-01-01» incluida. Vacío = no filtrar.' },
+        hasta: { type: 'string', description: 'Fecha «2026-03-31» incluida. Vacío = no filtrar.' },
+        categoria: { type: 'string', description: 'Nombre exacto de categoría. Vacío = no filtrar.' },
+        importe_minimo: { type: 'number', description: 'En euros, sobre el valor absoluto. Cero = no filtrar.' },
       },
       required: ['texto', 'desde', 'hasta', 'categoria', 'importe_minimo'],
       additionalProperties: false,
@@ -207,7 +210,7 @@ export function ejecutar(
     }
 
     case 'gasto_por_categoria': {
-      const mes = args.mes == null ? undefined : String(args.mes);
+      const mes = vacio(args.mes) ? undefined : String(args.mes);
       if (mes !== undefined && !esMes(mes)) return { error: 'El mes va como «2026-05».' };
       const lineas = desglosarGasto(datos, mes);
       return {
@@ -337,12 +340,12 @@ function resumirMovimiento(m: MovimientoVista) {
 }
 
 function buscar(datos: readonly MovimientoVista[], args: Record<string, unknown>) {
-  const texto = args.texto == null ? null : normalizar(String(args.texto));
-  const desde = args.desde == null ? null : String(args.desde);
-  const hasta = args.hasta == null ? null : String(args.hasta);
-  const categoria = args.categoria == null ? null : String(args.categoria);
-  const minimo =
-    args.importe_minimo == null ? null : Math.round(Math.abs(Number(args.importe_minimo)) * 100);
+  const texto = vacio(args.texto) ? null : normalizar(String(args.texto));
+  const desde = vacio(args.desde) ? null : String(args.desde);
+  const hasta = vacio(args.hasta) ? null : String(args.hasta);
+  const categoria = vacio(args.categoria) ? null : String(args.categoria);
+  const bruto = Number(args.importe_minimo);
+  const minimo = !Number.isFinite(bruto) || bruto === 0 ? null : Math.round(Math.abs(bruto) * 100);
 
   const encontrados = datos.filter((m) => {
     if (desde && m.fecha < desde) return false;
@@ -366,6 +369,19 @@ function buscar(datos: readonly MovimientoVista[], args: Record<string, unknown>
 }
 
 // --- utilidades ------------------------------------------------------------
+
+/**
+ * «Sin filtro».
+ *
+ * Los esquemas ya no llevan tipos unión (`["string","null"]`) sino tipos
+ * simples, y lo que no se quiere filtrar llega como cadena vacía. El motivo es
+ * que el modo estricto acepta un subconjunto de JSON Schema y una unión es
+ * justo de lo que se queda fuera: la API devuelve un 400 y la conversación
+ * entera se cae por un filtro opcional. Se sigue aceptando `null` por si acaso.
+ */
+function vacio(v: unknown): boolean {
+  return v == null || (typeof v === 'string' && v.trim() === '');
+}
 
 function esMes(v: string): boolean {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(v);

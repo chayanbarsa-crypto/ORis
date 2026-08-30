@@ -180,6 +180,38 @@ comprobar(
   comprobar(r.encontrados === 4, 'el mínimo va sobre el valor absoluto: entran cargos y abonos', r.encontrados);
 }
 
+{
+  // El contrato nuevo: los esquemas ya no llevan tipos unión —el modo estricto
+  // los rechaza con un 400— así que «sin filtro» viaja como cadena vacía. Si
+  // esto se rompiera, una búsqueda sin filtros devolvería cero en vez de todo.
+  const r = ejecutar(
+    'buscar_movimientos',
+    { texto: '', desde: '', hasta: '', categoria: '', importe_minimo: 0 },
+    DATOS,
+  ) as { encontrados: number };
+  comprobar(r.encontrados === DATOS.length, 'con todos los filtros vacíos salen todos', r.encontrados);
+
+  const conEspacios = ejecutar(
+    'buscar_movimientos',
+    { texto: '   ', desde: '', hasta: '', categoria: '', importe_minimo: 0 },
+    DATOS,
+  ) as { encontrados: number };
+  comprobar(conEspacios.encontrados === DATOS.length, 'y un filtro de sólo espacios tampoco filtra');
+
+  const todo = ejecutar('gasto_por_categoria', { mes: '' }, DATOS) as { mes: string };
+  comprobar(todo.mes === 'todo el histórico', 'el mes vacío significa todo el histórico', todo.mes);
+}
+
+{
+  // Y ningún esquema puede volver a llevar un tipo unión sin que salte esto.
+  const uniones = HERRAMIENTAS.filter((h) => {
+    const props = (h.input_schema as { properties?: Record<string, { type?: unknown }> }).properties ?? {};
+    return Object.values(props).some((p) => Array.isArray(p.type));
+  });
+  comprobar(uniones.length === 0, 'ningún parámetro usa tipo unión: el modo estricto los rechaza',
+    uniones.map((h) => h.name));
+}
+
 // --- argumentos malos ------------------------------------------------------
 
 comprobar(
