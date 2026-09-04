@@ -23,7 +23,9 @@
  *    llegue a completarse.
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
+
+import { cliente as clienteAnthropic, hayClave } from './anthropic';
 
 import { ESQUEMA_MOVIMIENTOS, PROMPT_EXTRACCION } from './contratos';
 import type { Extraccion } from './validacion';
@@ -46,12 +48,11 @@ export class ErrorExtraccion extends Error {
 }
 
 export function hayClaveIA(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return hayClave();
 }
 
 export async function extraer(pdf: Uint8Array, nombre: string): Promise<Extraccion> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  if (!hayClave()) {
     throw new ErrorExtraccion(
       'No hay ANTHROPIC_API_KEY configurada, así que ORis no puede leer el PDF.',
       'Añádela en las variables de entorno y vuelve a desplegar.',
@@ -66,7 +67,7 @@ export async function extraer(pdf: Uint8Array, nombre: string): Promise<Extracci
     );
   }
 
-  const cliente = new Anthropic({ apiKey });
+  const cliente = clienteAnthropic();
 
   const stream = cliente.messages.stream({
     model: MODELO,

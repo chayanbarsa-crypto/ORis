@@ -24,6 +24,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 
+import { cliente as clienteAnthropic, hayClave } from '@/lib/oris/anthropic';
 import { cargarMovimientos } from '@/lib/oris/cargar';
 import { HERRAMIENTAS, ejecutar, mesMasReciente } from '@/lib/oris/copiloto';
 import { nombreMes } from '@/lib/oris/dinero';
@@ -55,7 +56,7 @@ const MAX_VUELTAS = 8;
 const MAX_HISTORIA = 20;
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!hayClave()) {
     return Response.json(
       {
         mensaje:
@@ -102,7 +103,7 @@ export async function POST(req: Request) {
         control.enqueue(codificador.encode(`data: ${JSON.stringify(dato)}\n\n`));
 
       try {
-        const cliente = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+        const cliente = clienteAnthropic();
         const conversacion: Anthropic.MessageParam[] = [...historia];
 
         for (let vuelta = 0; vuelta < MAX_VUELTAS; vuelta++) {

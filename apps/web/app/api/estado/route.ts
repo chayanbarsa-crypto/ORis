@@ -24,6 +24,11 @@ export const dynamic = 'force-dynamic';
 /** Qué se espera que exista, y con qué pinta. */
 const ESPERADAS = [
   { nombre: 'ANTHROPIC_API_KEY', empiezaPor: 'sk-ant-', paraQue: 'el copiloto y la lectura de PDF' },
+  {
+    nombre: 'ANTHROPIC_WORKSPACE_ID',
+    empiezaPor: null,
+    paraQue: 'sólo si tu clave está ligada a tu identidad y no a un espacio de trabajo',
+  },
   { nombre: 'ORIS_PIN', empiezaPor: null, paraQue: 'la puerta' },
   { nombre: 'ORIS_SECRETO', empiezaPor: null, paraQue: 'firmar tu sesión' },
   { nombre: 'DATABASE_URL', empiezaPor: null, paraQue: 'la base de datos (opcional si está POSTGRES_URL)' },
@@ -48,7 +53,7 @@ export async function GET() {
   // Nombres parecidos, para cazar la errata. Sólo nombres, nunca valores: si
   // alguien escribió ANTROPIC_API_KEY o dejó un espacio en el nombre, aquí se ve.
   const parecidas = Object.keys(process.env)
-    .filter((k) => /ANTHRO|ANTRO|ORIS|POSTGRES_URL|DATABASE/i.test(k))
+    .filter((k) => /ANTHRO|ANTRO|ORIS|WORKSPACE|POSTGRES_URL|DATABASE/i.test(k))
     .sort();
 
   return NextResponse.json({
