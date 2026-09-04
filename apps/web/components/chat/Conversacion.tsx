@@ -9,9 +9,14 @@
  * Un punto girando no dice nada y, en una herramienta de dinero, no decir nada
  * se parece demasiado a inventar.
  *
- * El texto llega en trozos por SSE y se pinta según llega. No hay markdown ni
- * resaltado: los importes vienen ya formateados del servidor y lo único que
- * hace falta es respetar los saltos de línea.
+ * El texto llega en trozos por SSE y se pinta según llega.
+ *
+ * De markdown sólo se interpreta la negrita. El modelo la usa para los importes
+ * —«gastaste **572,99 €**»— y sin interpretarla se leen los asteriscos en
+ * crudo, que es justo el detalle que hace parecer roto algo que funciona. El
+ * resto del markdown no se toca: una tabla o un encabezado en un panel de chat
+ * estorban más de lo que aportan, y montar un intérprete entero para dos
+ * asteriscos es traer una dependencia para nada.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -173,7 +178,7 @@ export function Conversacion({ onConversar }: ConversacionProps) {
                   : 'max-w-[92%] whitespace-pre-wrap text-[0.82rem] leading-relaxed text-tinta-2'
               }
             >
-              {t.texto}
+              <ConNegrita texto={t.texto} />
             </p>
           </div>
         ))}
@@ -223,6 +228,34 @@ export function Conversacion({ onConversar }: ConversacionProps) {
           </button>
         </form>
       </div>
+    </>
+  );
+}
+
+/**
+ * `**así**` se pinta en negrita; lo demás va tal cual.
+ *
+ * Se parte por el delimitador en lugar de generar HTML: nada de lo que llega
+ * del modelo se interpreta como marcado, así que un texto con `<script>` dentro
+ * sigue siendo texto. Un asterisco doble suelto y sin pareja se queda como está
+ * —que es lo que pasa mientras la respuesta se está escribiendo— en vez de
+ * comerse el resto de la frase.
+ */
+function ConNegrita({ texto }: { texto: string }) {
+  const trozos = texto.split('**');
+  return (
+    <>
+      {trozos.map((trozo, i) =>
+        // Los impares son lo que iba entre asteriscos. El último trozo impar
+        // sólo va en negrita si hubo cierre: si no, el par está a medio llegar.
+        i % 2 === 1 && (i < trozos.length - 1 || trozos.length % 2 === 1) ? (
+          <strong key={i} className="font-medium text-tinta">
+            {trozo}
+          </strong>
+        ) : (
+          <span key={i}>{i % 2 === 1 ? `**${trozo}` : trozo}</span>
+        ),
+      )}
     </>
   );
 }
